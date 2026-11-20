@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/JXReborn.Workbench.Scripts/JXReborn.Workbench.Scripts.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/JXReborn.LegacyImporter/JXReborn.LegacyImporter.csproj" />
+  </Folder>
+  <Folder Name="/qa/">
+    <Project Path="qa/JXReborn.ClientDriver/JXReborn.ClientDriver.csproj" />
+    <Project Path="qa/JXReborn.ClientDriver.Cli/JXReborn.ClientDriver.Cli.csproj" />
+    <Project Path="qa/JXReborn.ClientDriver.Tests/JXReborn.ClientDriver.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/JXReborn.Workbench.ParityTests/JXReborn.Workbench.ParityTests.csproj" />
+  </Folder>
+</Solution>

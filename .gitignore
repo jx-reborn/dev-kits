@@ -424,3 +424,15 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+# JX Reborn Workbench local runtime, parity artifacts, and keys
+scripts/*.dll
+scripts/*.pdb
+*.db
+*.db-shm
+*.db-wal
+artifacts/keys/*.bin
+artifacts/headless-client/
+artifacts/ghidra-*/
+artifacts/dev-kit/
+
