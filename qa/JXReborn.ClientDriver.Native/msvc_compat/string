@@ -1,0 +1,247 @@
+#pragma once
+
+#include <cstdlib>
+#include <cstring>
+#include <utility>
+
+namespace std {
+
+class string {
+public:
+    static constexpr size_t npos = static_cast<size_t>(-1);
+
+    string() noexcept = default;
+
+    string(const char* s) {
+        if (s) {
+            append(s, std::strlen(s));
+        }
+    }
+
+    string(const char* s, size_t count) {
+        if (s && count > 0) {
+            append(s, count);
+        }
+    }
+
+    string(const string& other) {
+        if (other.size_ > 0) {
+            append(other.c_str(), other.size_);
+        }
+    }
+
+    string(string&& other) noexcept
+        : data_(other.data_), size_(other.size_), cap_(other.cap_) {
+        other.data_ = nullptr;
+        other.size_ = 0;
+        other.cap_ = 0;
+    }
+
+    ~string() {
+        if (data_) {
+            std::free(data_);
+        }
+    }
+
+    string& operator=(const string& other) {
+        if (this != &other) {
+            clear();
+            if (other.size_ > 0) {
+                append(other.c_str(), other.size_);
+            }
+        }
+        return *this;
+    }
+
+    string& operator=(string&& other) noexcept {
+        if (this != &other) {
+            if (data_) std::free(data_);
+            data_ = other.data_;
+            size_ = other.size_;
+            cap_ = other.cap_;
+            other.data_ = nullptr;
+            other.size_ = 0;
+            other.cap_ = 0;
+        }
+        return *this;
+    }
+
+    string& operator=(const char* s) {
+        clear();
+        if (s) append(s, std::strlen(s));
+        return *this;
+    }
+
+    const char* c_str() const noexcept { return data_ ? data_ : ""; }
+    const char* data() const noexcept { return data_ ? data_ : ""; }
+    char* data() noexcept { return data_; }
+    size_t size() const noexcept { return size_; }
+    size_t length() const noexcept { return size_; }
+    bool empty() const noexcept { return size_ == 0; }
+
+    const char* begin() const noexcept { return c_str(); }
+    const char* end() const noexcept { return c_str() + size_; }
+    char* begin() noexcept { return data_; }
+    char* end() noexcept { return data_ ? data_ + size_ : nullptr; }
+
+    char& operator[](size_t i) noexcept { return data_[i]; }
+    const char& operator[](size_t i) const noexcept { return data_[i]; }
+
+    char& back() noexcept { return data_[size_ - 1]; }
+    const char& back() const noexcept { return data_[size_ - 1]; }
+
+    void clear() noexcept {
+        size_ = 0;
+        if (data_) data_[0] = '\0';
+    }
+
+    void reserve(size_t newCap) {
+        if (newCap + 1 <= cap_) return;
+        size_t allocCap = cap_ == 0 ? 32 : cap_;
+        while (allocCap < newCap + 1) {
+            allocCap *= 2;
+        }
+        char* p = static_cast<char*>(std::realloc(data_, allocCap));
+        if (!p) return;
+        data_ = p;
+        if (size_ == 0) data_[0] = '\0';
+        cap_ = allocCap;
+    }
+
+    void push_back(char ch) {
+        reserve(size_ + 1);
+        if (!data_) return;
+        data_[size_++] = ch;
+        data_[size_] = '\0';
+    }
+
+    void pop_back() noexcept {
+        if (size_ > 0) {
+            data_[--size_] = '\0';
+        }
+    }
+
+    string& append(const char* s, size_t count) {
+        if (!s || count == 0) return *this;
+        reserve(size_ + count);
+        if (!data_) return *this;
+        std::memcpy(data_ + size_, s, count);
+        size_ += count;
+        data_[size_] = '\0';
+        return *this;
+    }
+
+    string& append(const char* s) {
+        return s ? append(s, std::strlen(s)) : *this;
+    }
+
+    string& append(const string& other) {
+        return append(other.c_str(), other.size_);
+    }
+
+    string& operator+=(const char* s) { return append(s); }
+    string& operator+=(const string& other) { return append(other); }
+    string& operator+=(char ch) { push_back(ch); return *this; }
+
+    string substr(size_t pos = 0, size_t count = npos) const {
+        if (pos >= size_) return string();
+        size_t avail = size_ - pos;
+        size_t len = (count < avail) ? count : avail;
+        return string(c_str() + pos, len);
+    }
+
+    string& erase(size_t pos = 0, size_t count = npos) {
+        if (pos >= size_) return *this;
+        size_t avail = size_ - pos;
+        size_t del = (count < avail) ? count : avail;
+        size_t tail = size_ - (pos + del);
+        if (tail > 0) {
+            std::memmove(data_ + pos, data_ + pos + del, tail);
+        }
+        size_ -= del;
+        if (data_) data_[size_] = '\0';
+        return *this;
+    }
+
+    size_t find(char ch, size_t pos = 0) const noexcept {
+        for (size_t i = pos; i < size_; ++i) {
+            if (data_[i] == ch) return i;
+        }
+        return npos;
+    }
+
+    size_t rfind(const char* s, size_t pos = npos) const noexcept {
+        if (!s) return npos;
+        size_t slen = std::strlen(s);
+        if (slen > size_) return npos;
+        size_t maxStart = size_ - slen;
+        size_t start = (pos < maxStart) ? pos : maxStart;
+        for (size_t i = start + 1; i > 0; --i) {
+            size_t idx = i - 1;
+            if (slen == 0 || std::memcmp(c_str() + idx, s, slen) == 0) {
+                return idx;
+            }
+        }
+        return npos;
+    }
+
+    int compare(size_t pos, size_t len, const char* s) const noexcept {
+        if (!s) return 1;
+        size_t slen = std::strlen(s);
+        if (pos > size_) return -1;
+        size_t avail = size_ - pos;
+        size_t cmpLen = len < avail ? len : avail;
+        size_t minLen = cmpLen < slen ? cmpLen : slen;
+        int r = minLen > 0 ? std::memcmp(c_str() + pos, s, minLen) : 0;
+        if (r != 0) return r;
+        if (cmpLen < slen) return -1;
+        if (cmpLen > slen) return 1;
+        return 0;
+    }
+
+private:
+    char* data_ = nullptr;
+    size_t size_ = 0;
+    size_t cap_ = 0;
+};
+
+inline string operator+(const string& a, const string& b) {
+    string r(a);
+    r.append(b);
+    return r;
+}
+
+inline string operator+(const string& a, const char* b) {
+    string r(a);
+    r.append(b);
+    return r;
+}
+
+inline string operator+(const char* a, const string& b) {
+    string r(a);
+    r.append(b);
+    return r;
+}
+
+inline bool operator==(const string& a, const string& b) noexcept {
+    return a.size() == b.size() && (a.size() == 0 || std::memcmp(a.data(), b.data(), a.size()) == 0);
+}
+
+inline bool operator==(const string& a, const char* b) noexcept {
+    if (!b) return false;
+    return std::strcmp(a.c_str(), b) == 0;
+}
+
+inline bool operator!=(const string& a, const string& b) noexcept {
+    return !(a == b);
+}
+
+inline bool operator!=(const string& a, const char* b) noexcept {
+    return !(a == b);
+}
+
+inline bool operator<(const string& a, const string& b) noexcept {
+    return std::strcmp(a.c_str(), b.c_str()) < 0;
+}
+
+} // namespace std

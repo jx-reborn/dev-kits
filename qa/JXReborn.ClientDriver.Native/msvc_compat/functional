@@ -1,0 +1,97 @@
+#pragma once
+
+#include <cstdlib>
+#include <new>
+#include <utility>
+
+namespace std {
+
+template <class Sig>
+class function;
+
+template <class R, class... Args>
+class function<R(Args...)> {
+    struct HolderBase {
+        virtual ~HolderBase() = default;
+        virtual R Invoke(Args... args) = 0;
+        virtual HolderBase* Clone() const = 0;
+        virtual void Destroy() noexcept = 0;
+    };
+
+    template <class F>
+    struct Holder final : HolderBase {
+        F fn;
+        explicit Holder(const F& f) : fn(f) {}
+        explicit Holder(F&& f) : fn(move(f)) {}
+
+        R Invoke(Args... args) override {
+            return fn(forward<Args>(args)...);
+        }
+
+        HolderBase* Clone() const override {
+            void* mem = std::malloc(sizeof(Holder<F>));
+            return new (mem) Holder<F>(fn);
+        }
+
+        void Destroy() noexcept override {
+            this->~Holder();
+            std::free(this);
+        }
+    };
+
+public:
+    function() noexcept = default;
+    function(decltype(nullptr)) noexcept {}
+
+    function(const function& other)
+        : holder_(other.holder_ ? other.holder_->Clone() : nullptr) {}
+
+    function(function&& other) noexcept : holder_(other.holder_) {
+        other.holder_ = nullptr;
+    }
+
+    template <class F>
+    function(F f) {
+        void* mem = std::malloc(sizeof(Holder<F>));
+        holder_ = new (mem) Holder<F>(move(f));
+    }
+
+    ~function() {
+        reset();
+    }
+
+    function& operator=(const function& other) {
+        if (this != &other) {
+            reset();
+            holder_ = other.holder_ ? other.holder_->Clone() : nullptr;
+        }
+        return *this;
+    }
+
+    function& operator=(function&& other) noexcept {
+        if (this != &other) {
+            reset();
+            holder_ = other.holder_;
+            other.holder_ = nullptr;
+        }
+        return *this;
+    }
+
+    explicit operator bool() const noexcept { return holder_ != nullptr; }
+
+    R operator()(Args... args) const {
+        return holder_->Invoke(forward<Args>(args)...);
+    }
+
+private:
+    void reset() noexcept {
+        if (holder_) {
+            holder_->Destroy();
+            holder_ = nullptr;
+        }
+    }
+
+    HolderBase* holder_ = nullptr;
+};
+
+} // namespace std

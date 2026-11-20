@@ -1,0 +1,75 @@
+#pragma once
+
+#include <cstdio>
+#include <string>
+
+namespace std {
+
+class ostringstream {
+public:
+    ostringstream() = default;
+
+    string str() const { return buf_; }
+
+    ostringstream& operator<<(const char* s) {
+        if (s) buf_.append(s);
+        return *this;
+    }
+
+    ostringstream& operator<<(const string& s) {
+        buf_.append(s);
+        return *this;
+    }
+
+    ostringstream& operator<<(char c) {
+        buf_.push_back(c);
+        return *this;
+    }
+
+    ostringstream& operator<<(int v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%d", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+    ostringstream& operator<<(unsigned int v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%u", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+    ostringstream& operator<<(long v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%ld", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+    ostringstream& operator<<(unsigned long v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%lu", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+    ostringstream& operator<<(long long v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%lld", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+    ostringstream& operator<<(unsigned long long v) {
+        char tmp[32];
+        std::snprintf(tmp, sizeof(tmp), "%llu", v);
+        buf_.append(tmp);
+        return *this;
+    }
+
+private:
+    string buf_;
+};
+
+} // namespace std
