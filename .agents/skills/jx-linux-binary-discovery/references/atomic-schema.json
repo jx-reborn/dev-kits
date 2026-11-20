@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JX-Linux Atomic Binary Feature",
+  "type": "object",
+  "required": [
+    "atomic_id",
+    "domain",
+    "status",
+    "summary",
+    "binary_evidence",
+    "inputs_and_offsets",
+    "preconditions",
+    "formulas",
+    "branch_logic",
+    "side_effects_and_packets",
+    "depends_on",
+    "unresolved_binary_refs",
+    "related_unexplored_domains"
+  ],
+  "properties": {
+    "atomic_id": {
+      "type": "string",
+      "description": "Unique dot-separated identifier, e.g. combat.damage.physical_hit_chance"
+    },
+    "domain": {
+      "type": "string",
+      "description": "MECE domain path, e.g. combat.damage"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["verified_from_binary", "partial_with_unresolved_refs"]
+    },
+    "summary": {
+      "type": "string",
+      "description": "Concise description of this single atomic mechanic strictly from binary evidence."
+    },
+    "binary_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["binary", "function", "address", "role"],
+        "properties": {
+          "binary": { "type": "string" },
+          "function": { "type": "string" },
+          "address": { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },
+          "role": { "type": "string" }
+        }
+      }
+    },
+    "inputs_and_offsets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "source", "data_type", "evidence_address"],
+        "properties": {
+          "name": { "type": "string" },
+          "source": { "type": "string" },
+          "data_type": { "type": "string" },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["condition", "effect", "evidence_address"],
+        "properties": {
+          "condition": { "type": "string" },
+          "effect": { "type": "string" },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "formulas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["formula_id", "c_expression", "data_type_and_rounding", "evidence_address"],
+        "properties": {
+          "formula_id": { "type": "string" },
+          "c_expression": { "type": "string" },
+          "data_type_and_rounding": { "type": "string" },
+          "clamp": {
+            "type": "object",
+            "properties": {
+              "min": {},
+              "max": {}
+            }
+          },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "branch_logic": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["condition", "effect", "evidence_address"],
+        "properties": {
+          "condition": { "type": "string" },
+          "effect": { "type": "string" },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "side_effects_and_packets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "detail", "evidence_address"],
+        "properties": {
+          "kind": { "type": "string" },
+          "detail": { "type": "string" },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "atomic_ids already in discovery_registry.json referenced by this unit (for MECE deduplication)."
+    },
+    "unresolved_binary_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "reason", "evidence_address"],
+        "properties": {
+          "target": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence_address": { "type": "string" }
+        }
+      }
+    },
+    "related_unexplored_domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["suggested_atomic_id", "binary", "entry_hint", "reason"],
+        "properties": {
+          "suggested_atomic_id": { "type": "string" },
+          "binary": { "type": "string" },
+          "entry_hint": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
