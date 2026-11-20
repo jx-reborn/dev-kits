@@ -277,9 +277,7 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
 
     private static void RestoreVitals(PlayerZoneState player)
     {
-        player.CurrentLife = player.MaxLife;
-        player.CurrentMana = player.MaxMana;
-        player.CurrentStamina = player.MaxStamina;
+        player.RestoreFullVitals();
         player.OutboundSink.SendNormalVitalSync(player);
     }
 
@@ -1201,7 +1199,7 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 var bc = (ZoneScriptDialogContextBase)c;
                 PlayerZoneState p = bc.Player;
                 bc.SendSystemMessage(
-                    $"[GM] Lv={p.Level} HP={p.CurrentLife}/{p.MaxLife} MP={p.CurrentMana}/{p.MaxMana} " +
+                    $"[GM] Lv={p.Level} HP={p.CurrentLife}/{p.EffectiveMaxLife}(base:{p.MaxLife}) MP={p.CurrentMana}/{p.EffectiveMaxMana}(base:{p.MaxMana}) " +
                     $"Camp={(byte)p.CurrentCamp} Fight={p.FightMode} PK={p.PkValue} Cash={p.InventoryMoney} " +
                     $"Map={p.MapId} ({p.CurrentMpsX / 32},{p.CurrentMpsY / 32}) FreeCells={bc.FreeBagCellCount}");
                 return ValueTask.CompletedTask;
