@@ -1,0 +1,245 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W03-CastHangLongBatVuOnDummy",
+    "title": "Cast Hang Long Bat Vu (Skill 14 Lv5) onto stationary training dummy",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "010ef5b21d5f18f2c527c2df46c84b1aaec4039e2a7e19a97080be6e97503274",
+    "recordedAtUtc": "2026-11-19T15:44:59.8912748+00:00",
+    "contentSha256": "608ab77afd47e3797eac73bdc5ae53ebe1347cf0595e0709326a446d322e32c3"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw03",
+      "roleName": "HeroDragonW03",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        },
+        {
+          "label": "Level 30",
+          "optionPath": [
+            0,
+            0,
+            3
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "FightMode 1",
+          "optionPath": [
+            4,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Learn Skill 14 Lv5",
+          "optionPath": [
+            1,
+            2,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Spawn Dummy 413",
+          "optionPath": [
+            6,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": 30,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96452,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$npc:dummy": {
+      "kind": "Npc",
+      "actorId": "P1",
+      "recordedDwId": 96453,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": 413
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_CastHangLongBatVuOnDummy",
+      "actorId": "P1",
+      "userActionDescription": "Cast Hang Long Bat Vu (Skill 14 Lv5) on training dummy (Coc go 413)",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 77,
+          "rawHex": "4DC57801000E000000FFFFFFFF20A97E03",
+          "patches": [
+            {
+              "byteOffset": 1,
+              "kind": "UInt32LeDwId",
+              "symbol": "$npc:dummy",
+              "comment": "NpcSkill TargetNpcDwId"
+            }
+          ]
+        }
+      ],
+      "observationTicks": 36,
+      "expectedS2cContract": [
+        {
+          "opcode": 90,
+          "name": "s2c_skillcast",
+          "exactByteLength": 25,
+          "expectedTickOffsetFrames": 2,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 5,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 14,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "SkillId"
+            },
+            {
+              "byteOffset": 17,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 5,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "SkillLevel"
+            },
+            {
+              "byteOffset": 13,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "SymbolDwId",
+              "expectedValue": null,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": "$actor:P1",
+              "fieldName": "CasterNpcId"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 2,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 42,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 87,
+          "name": "s2c_npcdeath",
+          "exactByteLength": 5,
+          "expectedTickOffsetFrames": 17,
+          "tickToleranceFrames": 10,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "SymbolDwId",
+              "expectedValue": null,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": "$npc:dummy",
+              "fieldName": "NpcId"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 42,
+            "minValue": null,
+            "maxValue": null
+          },
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": "$npc:dummy",
+          "targetNpcLifePercent128": {
+            "matcher": "RangeInt64",
+            "expectedValue": null,
+            "minValue": 0,
+            "maxValue": 2
+          },
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

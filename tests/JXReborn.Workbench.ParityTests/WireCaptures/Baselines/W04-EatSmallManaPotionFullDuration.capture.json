@@ -1,0 +1,707 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W04-EatSmallManaPotionFullDuration",
+    "title": "Consume Ngung Than dan (tieu) (1,1,0,lv=1) with 120 Mana deficit and observe full 200-frame regeneration curve",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "010ef5b21d5f18f2c527c2df46c84b1aaec4039e2a7e19a97080be6e97503274",
+    "recordedAtUtc": "2026-11-19T15:44:44.5496331+00:00",
+    "contentSha256": "3e65049b682d5e76b8ab1b8e166a7d0e4b87dc45ade1d5f975155a822579d06f"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw04",
+      "roleName": "HeroManaW04",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        },
+        {
+          "label": "Level 50",
+          "optionPath": [
+            0,
+            0,
+            4
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Grant Ngung Than Dan Tieu",
+          "optionPath": [
+            3,
+            0,
+            1
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": 50,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": [
+          "$item:small_mana_potion"
+        ],
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96451,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$item:small_mana_potion": {
+      "kind": "Item",
+      "actorId": "P1",
+      "recordedDwId": 102,
+      "itemGenre": 1,
+      "itemDetailType": 1,
+      "itemParticularType": 0,
+      "itemLevel": 1,
+      "preferredPlace": 3,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_Allocate120EnergyForFullManaDeficit",
+      "actorId": "P1",
+      "userActionDescription": "Allocate 120 Energy points so MaxMana exceeds CurrentMana by 120",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 87,
+          "rawHex": "5703780000007D010000000018D3",
+          "patches": []
+        }
+      ],
+      "observationTicks": 8,
+      "expectedS2cContract": [],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 65,
+            "minValue": null,
+            "maxValue": null
+          },
+          "maxMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 185,
+            "minValue": null,
+            "maxValue": null
+          },
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    },
+    {
+      "stepId": "02_ConsumeSmallManaPotionFullDuration",
+      "actorId": "P1",
+      "userActionDescription": "Right-click Ngung Than dan (tieu) in bag and observe every periodic Mana regeneration tick until natural expiration",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 89,
+          "rawHex": "59000300000003030080000000000000",
+          "patches": [
+            {
+              "byteOffset": 1,
+              "kind": "UInt8ItemGridX",
+              "symbol": "$item:small_mana_potion",
+              "comment": "EatItem GridX"
+            },
+            {
+              "byteOffset": 6,
+              "kind": "UInt8ItemGridY",
+              "symbol": "$item:small_mana_potion",
+              "comment": "EatItem GridY"
+            },
+            {
+              "byteOffset": 7,
+              "kind": "UInt8ItemPlace",
+              "symbol": "$item:small_mana_potion",
+              "comment": "EatItem ContainerPlace"
+            }
+          ]
+        },
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 73,
+          "rawHex": "494D680100",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 73,
+          "rawHex": "49E4430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 3,
+          "opcode": 73,
+          "rawHex": "490E440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 5,
+          "opcode": 73,
+          "rawHex": "490F440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 102,
+          "opcode": 73,
+          "rawHex": "494D680100",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 102,
+          "opcode": 73,
+          "rawHex": "49E4430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 104,
+          "opcode": 73,
+          "rawHex": "490E440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 106,
+          "opcode": 73,
+          "rawHex": "490F440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 204,
+          "opcode": 73,
+          "rawHex": "494D680100",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 204,
+          "opcode": 73,
+          "rawHex": "49E4430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 209,
+          "opcode": 73,
+          "rawHex": "490E440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 212,
+          "opcode": 73,
+          "rawHex": "490F440000",
+          "patches": []
+        }
+      ],
+      "observationTicks": 220,
+      "expectedS2cContract": [
+        {
+          "opcode": 96,
+          "name": "s2c_removeitem",
+          "exactByteLength": 5,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "SymbolDwId",
+              "expectedValue": null,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": "$item:small_mana_potion",
+              "fieldName": "RuntimeItemId"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 10,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 70,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 20,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 75,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 30,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 80,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 39,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 85,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 49,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 90,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 60,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 95,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 70,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 100,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 80,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 105,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 90,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 110,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 100,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 115,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 110,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 120,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 120,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 125,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 130,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 130,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 140,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 135,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 150,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 140,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 159,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 145,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 169,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 150,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 180,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 155,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 190,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 160,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 200,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 165,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 165,
+            "minValue": null,
+            "maxValue": null
+          },
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": [
+            "$item:small_mana_potion"
+          ],
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

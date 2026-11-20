@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W05-NpcShopBuyMedicine",
+    "title": "Open Pharmacist Shop 39 and buy medicine item (0x5D -> 0x61 + 0x5F)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:34:08.7607326+00:00",
+    "contentSha256": "667ab2d9d939db91bbf4e71cb5e3cadf9c5670d5c130d6bfea954ae261ee338f"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw05",
+      "roleName": "HeroShopW05",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Grant 50k Silver",
+          "optionPath": [
+            2,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Open Shop 39",
+          "optionPath": [
+            6,
+            2
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": {
+          "matcher": "ExactInt64",
+          "expectedValue": 50000,
+          "minValue": null,
+          "maxValue": null
+        }
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96452,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_BuyMedicineFromShop39",
+      "actorId": "P1",
+      "userActionDescription": "Buy first medicine from Pharmacist Shop 39 into free bag cell",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 93,
+          "rawHex": "5D0505030000000000008101",
+          "patches": []
+        }
+      ],
+      "observationTicks": 13,
+      "expectedS2cContract": [
+        {
+          "opcode": 95,
+          "name": "s2c_0x5F",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 6,
+          "fieldAssertions": [],
+          "observerActorId": null
+        },
+        {
+          "opcode": 97,
+          "name": "s2c_syncmoney",
+          "exactByteLength": 13,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 49950,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money1"
+            },
+            {
+              "byteOffset": 5,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 0,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money2"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": {
+            "matcher": "ExactInt64",
+            "expectedValue": 49950,
+            "minValue": null,
+            "maxValue": null
+          }
+        }
+      }
+    }
+  ]
+}

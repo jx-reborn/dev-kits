@@ -1,0 +1,214 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W06-RepositoryDepositAndWithdraw",
+    "title": "Open StoreBox, deposit 20,000 silver and withdraw 10,000 silver (0x73 -> 0x61)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:34:18.3642085+00:00",
+    "contentSha256": "c1bde842a325d8b1a462a30ac8aba032632fe87361c96646619c5dde2d637b38"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw06",
+      "roleName": "HeroBoxW06",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Grant 100k Silver",
+          "optionPath": [
+            2,
+            1
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Open StoreBox",
+          "optionPath": [
+            2,
+            6
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": {
+          "matcher": "ExactInt64",
+          "expectedValue": 100000,
+          "minValue": null,
+          "maxValue": null
+        }
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96453,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_Deposit20kSilver",
+      "actorId": "P1",
+      "userActionDescription": "Deposit 20,000 silver from bag to StoreBox",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 115,
+          "rawHex": "7300204E000031311E500000C849",
+          "patches": []
+        }
+      ],
+      "observationTicks": 13,
+      "expectedS2cContract": [
+        {
+          "opcode": 97,
+          "name": "s2c_syncmoney",
+          "exactByteLength": 13,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 80000,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money1"
+            },
+            {
+              "byteOffset": 5,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 20000,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money2"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": {
+            "matcher": "ExactInt64",
+            "expectedValue": 80000,
+            "minValue": null,
+            "maxValue": null
+          }
+        }
+      }
+    },
+    {
+      "stepId": "02_Withdraw10kSilver",
+      "actorId": "P1",
+      "userActionDescription": "Withdraw 10,000 silver from StoreBox to bag",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 115,
+          "rawHex": "73011027000031311E500000A049",
+          "patches": []
+        }
+      ],
+      "observationTicks": 11,
+      "expectedS2cContract": [
+        {
+          "opcode": 97,
+          "name": "s2c_syncmoney",
+          "exactByteLength": 13,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 90000,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money1"
+            },
+            {
+              "byteOffset": 5,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 10000,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Money2"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": {
+            "matcher": "ExactInt64",
+            "expectedValue": 90000,
+            "minValue": null,
+            "maxValue": null
+          }
+        }
+      }
+    }
+  ]
+}

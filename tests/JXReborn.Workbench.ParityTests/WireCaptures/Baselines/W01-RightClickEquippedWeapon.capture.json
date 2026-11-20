@@ -1,0 +1,407 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W01-RightClickEquippedWeapon",
+    "title": "Right-click auto-equip Cang Kiem onto character weapon slot and unequip back to bag",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "010ef5b21d5f18f2c527c2df46c84b1aaec4039e2a7e19a97080be6e97503274",
+    "recordedAtUtc": "2026-11-19T15:45:29.5921492+00:00",
+    "contentSha256": "457cb4e34a78abdd766170178b0c89f0a2d38f8afc942c824296d7616d0be57b"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw01",
+      "roleName": "HeroEquipW01",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        },
+        {
+          "label": "Level 20",
+          "optionPath": [
+            0,
+            0,
+            2
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Grant Cang Kiem Lv2",
+          "optionPath": [
+            3,
+            1,
+            1
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": 20,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": [
+          "$item:cang_kiem"
+        ],
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96455,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$item:cang_kiem": {
+      "kind": "Item",
+      "actorId": "P1",
+      "recordedDwId": 110,
+      "itemGenre": 0,
+      "itemDetailType": 0,
+      "itemParticularType": 0,
+      "itemLevel": 2,
+      "preferredPlace": 3,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_RightClickAutoEquipWeapon",
+      "actorId": "P1",
+      "userActionDescription": "Right-click Cang Kiem in bag to equip onto character weapon slot",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 91,
+          "rawHex": "5B030303000002",
+          "patches": [
+            {
+              "byteOffset": 1,
+              "kind": "UInt8ItemGridY",
+              "symbol": "$item:cang_kiem",
+              "comment": "MoveItem DownY"
+            },
+            {
+              "byteOffset": 4,
+              "kind": "UInt8ItemGridX",
+              "symbol": "$item:cang_kiem",
+              "comment": "MoveItem DownX"
+            }
+          ]
+        },
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 111,
+          "rawHex": "6F00000000",
+          "patches": []
+        }
+      ],
+      "observationTicks": 10,
+      "expectedS2cContract": [
+        {
+          "opcode": 98,
+          "name": "s2c_playermoveitem",
+          "exactByteLength": 7,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 2,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "DownPos"
+            },
+            {
+              "byteOffset": 6,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "UpPos"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 98,
+          "name": "s2c_playermoveitem",
+          "exactByteLength": 7,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 2,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 3,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "DownPos"
+            },
+            {
+              "byteOffset": 6,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 3,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "UpPos"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 98,
+          "name": "s2c_playermoveitem",
+          "exactByteLength": 7,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 2,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "DownPos"
+            },
+            {
+              "byteOffset": 6,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "UpPos"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 142,
+          "name": "s2c_itemautomove",
+          "exactByteLength": 1,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": true,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": [
+            "$item:cang_kiem"
+          ],
+          "equippedSymbols": [
+            "$item:cang_kiem"
+          ],
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    },
+    {
+      "stepId": "02_UnequipWeaponFromCharacterToBag",
+      "actorId": "P1",
+      "userActionDescription": "Pick equipped weapon from character weapon slot and place into bag",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 91,
+          "rawHex": "5B000302030002",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 111,
+          "rawHex": "6F00000000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 91,
+          "rawHex": "5B030503050303",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 73,
+          "rawHex": "494D680100",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 73,
+          "rawHex": "49E4430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 3,
+          "opcode": 73,
+          "rawHex": "490F440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 7,
+          "opcode": 73,
+          "rawHex": "490E440000",
+          "patches": []
+        }
+      ],
+      "observationTicks": 14,
+      "expectedS2cContract": [
+        {
+          "opcode": 98,
+          "name": "s2c_playermoveitem",
+          "exactByteLength": 7,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 2,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "DownPos"
+            },
+            {
+              "byteOffset": 6,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 2,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "UpPos"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 142,
+          "name": "s2c_itemautomove",
+          "exactByteLength": 1,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [],
+          "observerActorId": null
+        },
+        {
+          "opcode": 98,
+          "name": "s2c_playermoveitem",
+          "exactByteLength": 7,
+          "expectedTickOffsetFrames": 3,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 2,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 3,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "DownPos"
+            },
+            {
+              "byteOffset": 6,
+              "byteWidth": 1,
+              "isSigned": false,
+              "matcher": "ExactInt64",
+              "expectedValue": 3,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "UpPos"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 142,
+          "name": "s2c_itemautomove",
+          "exactByteLength": 1,
+          "expectedTickOffsetFrames": 3,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": false,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": [
+            "$item:cang_kiem"
+          ],
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

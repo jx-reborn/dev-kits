@@ -1,0 +1,193 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W09-MultiActorPartyInvite",
+    "title": "Multi-actor party: P1 creates team and invites P2; both receive s2c_teamprotocol (0x69)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:35:36.7262823+00:00",
+    "contentSha256": "9359eec90f4bcca861314b7a4b9f49e413eab56904b5ec198f69aed8c7e3527d"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw09a",
+      "roleName": "PartyPeerA",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    },
+    {
+      "actorId": "P2",
+      "accountName": "gmw09b",
+      "roleName": "PartyPeerB",
+      "gender": 1,
+      "series": 2,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96461,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$actor:P2": {
+      "kind": "PlayerSelf",
+      "actorId": "P2",
+      "recordedDwId": 96462,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_P1CreatesTeamAndInvitesP2",
+      "actorId": "P1",
+      "userActionDescription": "P1 creates team and invites P2; both actors receive s2c_teamprotocol",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 83,
+          "rawHex": "5307000200000000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 83,
+          "rawHex": "5307000ACE780100",
+          "patches": [
+            {
+              "byteOffset": 4,
+              "kind": "UInt32LeDwId",
+              "symbol": "$actor:P2",
+              "comment": "TeamProtocol PlayerDwId@4"
+            }
+          ]
+        }
+      ],
+      "observationTicks": 24,
+      "expectedS2cContract": [
+        {
+          "opcode": 105,
+          "name": "s2c_0x69",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 2,
+          "tickToleranceFrames": 10,
+          "fieldAssertions": [],
+          "observerActorId": "P1"
+        },
+        {
+          "opcode": 105,
+          "name": "s2c_0x69",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 2,
+          "tickToleranceFrames": 10,
+          "fieldAssertions": [],
+          "observerActorId": "P1"
+        },
+        {
+          "opcode": 105,
+          "name": "s2c_0x69",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 2,
+          "tickToleranceFrames": 10,
+          "fieldAssertions": [],
+          "observerActorId": "P2"
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        },
+        "P2": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

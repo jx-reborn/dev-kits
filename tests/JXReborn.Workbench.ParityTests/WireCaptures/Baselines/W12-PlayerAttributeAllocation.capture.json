@@ -1,0 +1,119 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W12-PlayerAttributeAllocation",
+    "title": "Allocate +5 Strength and +5 Dexterity at Level 10 and verify s2c_playerattributesync (0x5D)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:39:17.9360504+00:00",
+    "contentSha256": "0eca50b8a890330bbdcb55951db60a28a59e805b5fb08485992d3e7cc18b7d94"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw12",
+      "roleName": "AttrHeroW12",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Level 10",
+          "optionPath": [
+            0,
+            0,
+            1
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": 10,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96465,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_AllocateStrengthAndDexterity",
+      "actorId": "P1",
+      "userActionDescription": "Allocate +5 Strength and +5 Dexterity",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 87,
+          "rawHex": "5700050000007601000000001082",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 87,
+          "rawHex": "570105000000760100000000C081",
+          "patches": []
+        }
+      ],
+      "observationTicks": 16,
+      "expectedS2cContract": [
+        {
+          "opcode": 93,
+          "name": "s2c_0x5D",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": null
+        },
+        {
+          "opcode": 93,
+          "name": "s2c_0x5D",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": 53,
+          "level": 10,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

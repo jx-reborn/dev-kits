@@ -1,0 +1,312 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W02-EatManaPotionRegenTicks",
+    "title": "Allocate Energy to create Mana deficit, consume Ngung Than dan (trung), and regenerate Mana over 18-Hz ticks",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "010ef5b21d5f18f2c527c2df46c84b1aaec4039e2a7e19a97080be6e97503274",
+    "recordedAtUtc": "2026-11-19T15:45:18.2859765+00:00",
+    "contentSha256": "ed2043ea2e47f9e8aef8bbd5b48e8638e43418b61d14dde4ab20b55277c64316"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw02",
+      "roleName": "HeroManaW02",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        },
+        {
+          "label": "Level 50",
+          "optionPath": [
+            0,
+            0,
+            4
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Add +30 Attributes",
+          "optionPath": [
+            0,
+            1,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        },
+        {
+          "label": "Grant Ngung Than Dan Trung",
+          "optionPath": [
+            3,
+            0,
+            2
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": null
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": 50,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": [
+          "$item:mana_potion"
+        ],
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96454,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$item:mana_potion": {
+      "kind": "Item",
+      "actorId": "P1",
+      "recordedDwId": 107,
+      "itemGenre": 1,
+      "itemDetailType": 1,
+      "itemParticularType": 0,
+      "itemLevel": 2,
+      "preferredPlace": 3,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_AllocateEnergyToCreateManaDeficit",
+      "actorId": "P1",
+      "userActionDescription": "Allocate 25 Energy points to expand MaxMana above CurrentMana",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 87,
+          "rawHex": "570319000000760100000000400E",
+          "patches": []
+        }
+      ],
+      "observationTicks": 8,
+      "expectedS2cContract": [],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 65,
+            "minValue": null,
+            "maxValue": null
+          },
+          "maxMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 90,
+            "minValue": null,
+            "maxValue": null
+          },
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    },
+    {
+      "stepId": "02_ConsumeManaPotionAndRegen",
+      "actorId": "P1",
+      "userActionDescription": "Right-click Ngung Than dan (trung) in bag and observe periodic Mana regeneration ticks",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 89,
+          "rawHex": "59000300000003030080000000000000",
+          "patches": [
+            {
+              "byteOffset": 1,
+              "kind": "UInt8ItemGridX",
+              "symbol": "$item:mana_potion",
+              "comment": "EatItem GridX"
+            },
+            {
+              "byteOffset": 6,
+              "kind": "UInt8ItemGridY",
+              "symbol": "$item:mana_potion",
+              "comment": "EatItem GridY"
+            },
+            {
+              "byteOffset": 7,
+              "kind": "UInt8ItemPlace",
+              "symbol": "$item:mana_potion",
+              "comment": "EatItem ContainerPlace"
+            }
+          ]
+        },
+        {
+          "tickOffsetFrames": 73,
+          "opcode": 73,
+          "rawHex": "494D680100",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 73,
+          "opcode": 73,
+          "rawHex": "49E4430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 80,
+          "opcode": 73,
+          "rawHex": "490E440000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 82,
+          "opcode": 73,
+          "rawHex": "490F440000",
+          "patches": []
+        }
+      ],
+      "observationTicks": 115,
+      "expectedS2cContract": [
+        {
+          "opcode": 96,
+          "name": "s2c_removeitem",
+          "exactByteLength": 5,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 3,
+          "fieldAssertions": [
+            {
+              "byteOffset": 1,
+              "byteWidth": 4,
+              "isSigned": false,
+              "matcher": "SymbolDwId",
+              "expectedValue": null,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": "$item:mana_potion",
+              "fieldName": "RuntimeItemId"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 9,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 75,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 19,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 85,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        },
+        {
+          "opcode": 70,
+          "name": "s2c_synccurplayernormal",
+          "exactByteLength": 14,
+          "expectedTickOffsetFrames": 29,
+          "tickToleranceFrames": 5,
+          "fieldAssertions": [
+            {
+              "byteOffset": 3,
+              "byteWidth": 4,
+              "isSigned": true,
+              "matcher": "ExactInt64",
+              "expectedValue": 90,
+              "minValue": null,
+              "maxValue": null,
+              "symbol": null,
+              "fieldName": "Mana"
+            }
+          ],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": null,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": {
+            "matcher": "ExactInt64",
+            "expectedValue": 90,
+            "minValue": null,
+            "maxValue": null
+          },
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": [
+            "$item:mana_potion"
+          ],
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

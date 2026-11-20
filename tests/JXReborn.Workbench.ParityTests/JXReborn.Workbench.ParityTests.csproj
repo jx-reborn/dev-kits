@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\server\tests\JXReborn.TestBase\JXReborn.TestBase.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Primitives\JXReborn.Primitives.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.GameAssets\JXReborn.GameAssets.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Contracts\JXReborn.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Domain\JXReborn.Domain.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.ZoneEngine\JXReborn.ZoneEngine.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Scripts\JXReborn.Scripts.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Application\JXReborn.Application.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Infrastructure\JXReborn.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Adapter.Legacy\JXReborn.Adapter.Legacy.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Host\JXReborn.Host.csproj" />
+    <ProjectReference Include="..\..\..\server\tools\JXReborn.PackCompiler\JXReborn.PackCompiler.csproj" />
+    <ProjectReference Include="..\..\..\pack-tieudaotu\src\JXReborn.Packs.TieuDaoTu\JXReborn.Packs.TieuDaoTu.csproj" />
+    <ProjectReference Include="..\..\src\JXReborn.Workbench.Scripts\JXReborn.Workbench.Scripts.csproj" />
+    <ProjectReference Include="..\..\tools\JXReborn.LegacyImporter\JXReborn.LegacyImporter.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MemoryPack" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+</Project>

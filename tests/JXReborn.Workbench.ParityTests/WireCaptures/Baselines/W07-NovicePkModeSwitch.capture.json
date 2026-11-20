@@ -1,0 +1,147 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W07-NovicePkModeSwitch",
+    "title": "Novice switches PK mode Peace (0) -> Fight (1) -> Slaughter (2) -> Peace (0)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:34:24.7184379+00:00",
+    "contentSha256": "4dee9086357bbf82cff6beeef61d3f5dc381710f9108616e55cfde5f6a24b7c9"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw07",
+      "roleName": "HeroPkW07",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96454,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_SwitchPkModes0120",
+      "actorId": "P1",
+      "userActionDescription": "Switch PK mode 0 -> 1 -> 2 -> 0 in Ba Lang Huyen",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 118,
+          "rawHex": "7601",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 73,
+          "rawHex": "49C6430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 118,
+          "rawHex": "7602",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 2,
+          "opcode": 73,
+          "rawHex": "49C7430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 3,
+          "opcode": 73,
+          "rawHex": "49C8430000",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 5,
+          "opcode": 118,
+          "rawHex": "7600",
+          "patches": []
+        },
+        {
+          "tickOffsetFrames": 5,
+          "opcode": 73,
+          "rawHex": "4908690100",
+          "patches": []
+        }
+      ],
+      "observationTicks": 19,
+      "expectedS2cContract": [
+        {
+          "opcode": 144,
+          "name": "s2c_0x90",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": null
+        },
+        {
+          "opcode": 144,
+          "name": "s2c_0x90",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 3,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": null
+        },
+        {
+          "opcode": 144,
+          "name": "s2c_0x90",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 5,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": null
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

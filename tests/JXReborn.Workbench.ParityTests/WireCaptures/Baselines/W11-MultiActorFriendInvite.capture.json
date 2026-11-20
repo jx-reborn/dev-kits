@@ -1,0 +1,152 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W11-MultiActorFriendInvite",
+    "title": "Multi-actor social graph: P1 sends friend invite to P2; P2 receives s2c_chatapplyaddfriend (0x6A)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:39:29.2758432+00:00",
+    "contentSha256": "d9d9ff5ea8a1f729bac6ec273979f680dc61e5b9a5e0702dfd7512f694cf6b67"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw11a",
+      "roleName": "FriendPeerA",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    },
+    {
+      "actorId": "P2",
+      "accountName": "gmw11b",
+      "roleName": "FriendPeerB",
+      "gender": 1,
+      "series": 2,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96466,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$actor:P2": {
+      "kind": "PlayerSelf",
+      "actorId": "P2",
+      "recordedDwId": 96467,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_P1InvitesP2AsFriend",
+      "actorId": "P1",
+      "userActionDescription": "P1 sends friend invite to FriendPeerB; P2 receives 0x6A",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 1,
+          "opcode": 252,
+          "rawHex": "FC25000700FF467269656E645065657242000000000000000000000000000000000000000000",
+          "patches": []
+        }
+      ],
+      "observationTicks": 20,
+      "expectedS2cContract": [],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        },
+        "P2": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "captureId": "W08-MultiActorNearbyChat",
+    "title": "Multi-actor nearby chat: P1 broadcasts nearby message and P2 receives s2c_chatgetsomeone (0x7E)",
+    "oracleProfile": "kit",
+    "oraclePackageArchiveSha256": "9e93cb4470b049edcd9c901f2616d2016dae3027390ee53dc0f1962846ef5d74",
+    "recordedAtUtc": "2026-11-19T12:34:37.1223389+00:00",
+    "contentSha256": "bdc542fca99ec1f9a2863f9fc36178cda4f0ad38ec0e09806408d2d939e998d2"
+  },
+  "actors": [
+    {
+      "actorId": "P1",
+      "accountName": "gmw08a",
+      "roleName": "ChatPeerA",
+      "gender": 0,
+      "series": 0,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    },
+    {
+      "actorId": "P2",
+      "accountName": "gmw08b",
+      "roleName": "ChatPeerB",
+      "gender": 1,
+      "series": 2,
+      "nativePlaceId": 53,
+      "gmMenuSelections": [
+        {
+          "label": "Teleport Ba Lang 53",
+          "optionPath": [
+            5,
+            0
+          ],
+          "waitTicksAfterSelection": 20,
+          "expectMapIdAfterSelection": 53
+        }
+      ],
+      "settleTicksAfterSetup": 5,
+      "expectedPreState": {
+        "mapId": 53,
+        "level": null,
+        "hasEquippedWeapon": null,
+        "currentLife": null,
+        "currentMana": null,
+        "maxMana": null,
+        "bagContainsSymbols": null,
+        "bagExcludesSymbols": null,
+        "equippedSymbols": null,
+        "targetNpcSymbol": null,
+        "targetNpcLifePercent128": null,
+        "inventoryMoney": null
+      }
+    }
+  ],
+  "symbols": {
+    "$actor:P1": {
+      "kind": "PlayerSelf",
+      "actorId": "P1",
+      "recordedDwId": 96455,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    },
+    "$actor:P2": {
+      "kind": "PlayerSelf",
+      "actorId": "P2",
+      "recordedDwId": 96456,
+      "itemGenre": null,
+      "itemDetailType": null,
+      "itemParticularType": null,
+      "itemLevel": null,
+      "preferredPlace": null,
+      "npcTemplateId": null
+    }
+  },
+  "steps": [
+    {
+      "stepId": "01_P1SendsNearbyChatObservedByP2",
+      "actorId": "P1",
+      "userActionDescription": "P1 sends nearby chat in Ba Lang center; P2 receives 0x7E",
+      "c2sFrames": [
+        {
+          "tickOffsetFrames": 0,
+          "opcode": 86,
+          "rawHex": "561E000200000F0000000000000000004368616F205265636F7264506C6179",
+          "patches": []
+        }
+      ],
+      "observationTicks": 15,
+      "expectedS2cContract": [
+        {
+          "opcode": 126,
+          "name": "s2c_0x7E",
+          "exactByteLength": null,
+          "expectedTickOffsetFrames": 1,
+          "tickToleranceFrames": 8,
+          "fieldAssertions": [],
+          "observerActorId": "P2"
+        }
+      ],
+      "expectedActorStateAfter": {
+        "P1": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        },
+        "P2": {
+          "mapId": 53,
+          "level": null,
+          "hasEquippedWeapon": null,
+          "currentLife": null,
+          "currentMana": null,
+          "maxMana": null,
+          "bagContainsSymbols": null,
+          "bagExcludesSymbols": null,
+          "equippedSymbols": null,
+          "targetNpcSymbol": null,
+          "targetNpcLifePercent128": null,
+          "inventoryMoney": null
+        }
+      }
+    }
+  ]
+}
