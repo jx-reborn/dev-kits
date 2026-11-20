@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Primitives\JXReborn.Primitives.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Contracts\JXReborn.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.GameAssets\JXReborn.GameAssets.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.ZoneEngine\JXReborn.ZoneEngine.csproj" />
+    <ProjectReference Include="..\..\..\server\src\JXReborn.Scripts\JXReborn.Scripts.csproj" />
+  </ItemGroup>
+  <Target Name="CopyScriptLayerToWorkbenchScripts" AfterTargets="Build">
+    <PropertyGroup>
+      <_WorkbenchScriptsDir>$(MSBuildThisFileDirectory)..\..\scripts\</_WorkbenchScriptsDir>
+    </PropertyGroup>
+    <MakeDir Directories="$(_WorkbenchScriptsDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_WorkbenchScriptsDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(_WorkbenchScriptsDir)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
