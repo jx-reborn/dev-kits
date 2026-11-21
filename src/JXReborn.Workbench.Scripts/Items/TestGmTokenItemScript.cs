@@ -435,6 +435,22 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 });
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Set cấp độ Kỹ năng (Nhập ID & Cấp)", static c =>
+            {
+                c.AskClientForNumber("Nhập ID Kỹ năng (1..2000):", 1, 2000, static (nc, skillId) =>
+                {
+                    int clampedId = Math.Clamp(skillId, 1, 2000);
+                    nc.AskClientForNumber($"Nhập cấp độ cho kỹ năng ID {clampedId} (1..63):", 1, 63, (nc2, skillLevel) =>
+                    {
+                        ushort clampedLevel = (ushort)Math.Clamp(skillLevel, 1, 63);
+                        LearnSkillDirect((ZoneScriptDialogContextBase)nc2, clampedId, level: clampedLevel);
+                        nc2.SendSystemMessage($"Đã set kỹ năng ID {clampedId} lên cấp {clampedLevel}.");
+                        return ValueTask.CompletedTask;
+                    });
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenFactionAndSkillMenu((ZoneScriptDialogContextBase)c);
