@@ -1177,20 +1177,20 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
     {
         ctx.Say(
             "Thế giới & Thực thể NPC (Atomic):",
-            new DialogOption("Triệu hồi Cọc Gỗ Lv10 (Template 413, X+64)", static c =>
+            new DialogOption("Triệu hồi Mộc Nhân 1 tỷ HP (Template 586, X+64)", static c =>
             {
                 var bc = (ZoneScriptDialogContextBase)c;
                 PlayerZoneState p = bc.Player;
-                _ = bc.ExecutionContext.SpawnDynamicNpc(templateId: 413, level: 10, mpsX: p.CurrentMpsX + 64, mpsY: p.CurrentMpsY);
-                bc.SendSystemMessage("Đã triệu hồi Cọc Gỗ Lv10 (Template 413).");
+                _ = bc.ExecutionContext.SpawnDynamicNpc(templateId: 586, level: 90, mpsX: p.CurrentMpsX + 64, mpsY: p.CurrentMpsY);
+                bc.SendSystemMessage("Đã triệu hồi Mộc Nhân 1 tỷ HP (Template 586).");
                 return ValueTask.CompletedTask;
             }),
-            new DialogOption("Triệu hồi Quái tập Lv10 (Template 1, X+96)", static c =>
+            new DialogOption("Triệu hồi NPC luyện công 100k HP (Template 576, X+96)", static c =>
             {
                 var bc = (ZoneScriptDialogContextBase)c;
                 PlayerZoneState p = bc.Player;
-                _ = bc.ExecutionContext.SpawnDynamicNpc(templateId: 1, level: 10, mpsX: p.CurrentMpsX + 96, mpsY: p.CurrentMpsY);
-                bc.SendSystemMessage("Đã triệu hồi Quái tập Lv10 (Template 1).");
+                _ = bc.ExecutionContext.SpawnDynamicNpc(templateId: 576, level: 90, mpsX: p.CurrentMpsX + 96, mpsY: p.CurrentMpsY);
+                bc.SendSystemMessage("Đã triệu hồi NPC luyện công 100k HP (Template 576, không đánh trả).");
                 return ValueTask.CompletedTask;
             }),
             new DialogOption("Mở Tiệm Dược Điếm (Shop 39)", static c =>
