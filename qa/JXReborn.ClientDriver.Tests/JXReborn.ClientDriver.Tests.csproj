@@ -4,7 +4,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\JXReborn.ClientDriver\JXReborn.ClientDriver.csproj" />
+    <ProjectReference Include="..\..\..\legacy-client\src\JXReborn.ClientDriver\JXReborn.ClientDriver.csproj" />
     <ProjectReference Include="..\..\..\server\tests\JXReborn.TestBase\JXReborn.TestBase.csproj" />
     <ProjectReference Include="..\..\..\server\src\JXReborn.Primitives\JXReborn.Primitives.csproj" />
     <ProjectReference Include="..\..\..\server\src\JXReborn.GameAssets\JXReborn.GameAssets.csproj" />

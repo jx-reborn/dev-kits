@@ -6,8 +6,6 @@
     <Project Path="tools/JXReborn.LegacyImporter/JXReborn.LegacyImporter.csproj" />
   </Folder>
   <Folder Name="/qa/">
-    <Project Path="qa/JXReborn.ClientDriver/JXReborn.ClientDriver.csproj" />
-    <Project Path="qa/JXReborn.ClientDriver.Cli/JXReborn.ClientDriver.Cli.csproj" />
     <Project Path="qa/JXReborn.ClientDriver.Tests/JXReborn.ClientDriver.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/">

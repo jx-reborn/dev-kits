@@ -1,3 +1,0 @@
-LIBRARY represent2
-EXPORTS
-    CreateRepresentShell @1
