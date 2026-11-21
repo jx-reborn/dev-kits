@@ -35,6 +35,28 @@ public sealed class DualParityOptions
 
     public bool SpawnClients { get; set; }
 
+    public bool Standalone { get; set; }
+
+    public bool ReuseLegacyContainer { get; set; }
+
+    public bool KeepContainers { get; set; }
+
+    public bool OpenBrowserOnStandalone { get; set; } = true;
+
+    public string LegacyProfile { get; set; } = "v1";
+
+    public string LegacyContainerName { get; set; } = "legacy-oracle-test";
+
+    public int LegacyGameServerPort { get; set; } = 16666;
+
+    public int RebornGameServerPort { get; set; } = 16667;
+
+    public string? RebornHostProjectPath { get; set; }
+
+    public string? RebornPackDirectory { get; set; }
+
+    public string? RunParityScriptPath { get; set; }
+
     public bool InteractiveWindows { get; set; } = true;
 
     public string? LegacyPipeName { get; set; }
@@ -67,6 +89,7 @@ public sealed class DualParityOptions
     {
         ArgumentNullException.ThrowIfNull(args);
         var options = new DualParityOptions();
+        bool rebornPortExplicit = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -75,6 +98,48 @@ public sealed class DualParityOptions
 
             switch (arg)
             {
+                case "--standalone":
+                    options.Standalone = true;
+                    options.SpawnClients = true;
+                    break;
+                case "--reuse-legacy":
+                    options.ReuseLegacyContainer = true;
+                    break;
+                case "--keep-containers":
+                    options.KeepContainers = true;
+                    break;
+                case "--no-open-browser":
+                    options.OpenBrowserOnStandalone = false;
+                    break;
+                case "--legacy-profile":
+                    options.LegacyProfile = Next() ?? options.LegacyProfile;
+                    break;
+                case "--legacy-container":
+                    options.LegacyContainerName = Next() ?? options.LegacyContainerName;
+                    break;
+                case "--legacy-gs-port":
+                    if (int.TryParse(Next(), out int lgp))
+                    {
+                        options.LegacyGameServerPort = lgp;
+                    }
+
+                    break;
+                case "--reborn-gs-port":
+                    if (int.TryParse(Next(), out int rgp))
+                    {
+                        options.RebornGameServerPort = rgp;
+                    }
+
+                    break;
+                case "--reborn-project":
+                    options.RebornHostProjectPath = Next();
+                    break;
+                case "--pack-dir":
+                    options.RebornPackDirectory = Next();
+                    break;
+                case "--run-parity-script":
+                    options.RunParityScriptPath = Next();
+                    break;
                 case "--legacy-host":
                     options.LegacyHost = Next() ?? options.LegacyHost;
                     break;
@@ -92,6 +157,7 @@ public sealed class DualParityOptions
                     if (int.TryParse(Next(), out int rp))
                     {
                         options.RebornPort = rp;
+                        rebornPortExplicit = true;
                     }
 
                     break;
@@ -165,6 +231,12 @@ public sealed class DualParityOptions
                     options.RebornProxyPort = 0;
                     break;
             }
+        }
+
+        if (options.Standalone && !rebornPortExplicit)
+        {
+            // Isolate from dev JXReborn.Host (5622) by default in Standalone mode.
+            options.RebornPort = 15623;
         }
 
         return options;

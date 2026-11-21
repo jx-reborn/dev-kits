@@ -14,6 +14,16 @@ Server trung gian & bộ điều phối kiểm thử đối chiếu (Differentia
 
 ## Cách chạy nhanh
 
+### 0. Chế độ Standalone (All-in-One — 1 lệnh bật tất cả & tự dọn sạch khi tắt)
+Tự khởi động song song container `legacy-linux` (`T=0` qua `run-parity.ps1 -StartOnly`) + `JXReborn.Host` cô lập (port `15623`/`16667`, SQLite DB tạm `T=0`, không đụng `JXReborn.Host` dev) + 2 cửa sổ `game.exe` + Proxy + Interactive Mirror + tự mở Dashboard:
+```powershell
+dotnet run --project d:\Projects\jx-reborn\workbench\qa\JXReborn.DualParityServer -- --standalone
+```
+Tùy chọn hữu ích cho Standalone:
+- `--reuse-legacy`: tái sử dụng container `legacy-oracle-test` đang chạy thay vì tạo mới.
+- `--keep-containers`: giữ nguyên container `legacy-linux` sau khi tắt để vòng test sau khởi động nhanh hơn.
+- `--headless --mode npccrawl`: chạy ẩn toàn bộ (CI / càn quét NPC tự động) rồi tự xuất report + server logs và dọn sạch.
+
 ### 1. Chế độ Dashboard + Attach 2 cửa sổ `game.exe` đang mở
 ```powershell
 dotnet run --project d:\Projects\jx-reborn\workbench\qa\JXReborn.DualParityServer -- `

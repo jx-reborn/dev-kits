@@ -105,6 +105,19 @@ public static class DashboardHtml
       <tbody id="npcBody"><tr><td colspan="7" class="sub">Run "Crawl Nearby NPCs" to populate.</td></tr></tbody>
     </table>
   </div>
+
+  <div class="row" id="standalonePanel" style="display:none">
+    <div class="panel">
+      <h2>Managed Server: legacy-linux</h2>
+      <div class="sub" id="legacySrvMeta"></div>
+      <pre id="legacySrvLogs">(no logs)</pre>
+    </div>
+    <div class="panel">
+      <h2>Managed Server: reborn-server</h2>
+      <div class="sub" id="rebornSrvMeta"></div>
+      <pre id="rebornSrvLogs">(no logs)</pre>
+    </div>
+  </div>
 </main>
 
 <script>
@@ -168,9 +181,22 @@ async function refresh() {
       fetch('/api/npcs').then(r => r.json())
     ]);
     document.getElementById('sessionInfo').textContent =
-      `Session: ${st.sessionId} | Mirror: ${st.mirrorRunning ? 'RUNNING' : 'IDLE'} (${st.mirrorStatus}) | Steps: ${st.totalSteps} (${st.passedSteps} pass) | Findings: ${st.criticalCount} crit, ${st.warningCount} warn`;
+      `Session: ${st.sessionId} | Mode: ${st.standaloneEnabled ? 'STANDALONE' : 'ATTACH'} | Mirror: ${st.mirrorRunning ? 'RUNNING' : 'IDLE'} (${st.mirrorStatus}) | Steps: ${st.totalSteps} (${st.passedSteps} pass) | Findings: ${st.criticalCount} crit, ${st.warningCount} warn`;
     renderTarget('legacyInfo', 'legacyDialog', st.legacy, st.legacyProxy);
     renderTarget('rebornInfo', 'rebornDialog', st.reborn, st.rebornProxy);
+
+    const sp = document.getElementById('standalonePanel');
+    if (st.managedServers) {
+      sp.style.display = 'grid';
+      const ls = st.managedServers.legacy;
+      const rs = st.managedServers.reborn;
+      document.getElementById('legacySrvMeta').textContent = `${ls.state} | ${ls.endpoint} | ${ls.identifier || ''}`;
+      document.getElementById('legacySrvLogs').textContent = (ls.recentLogs || []).slice(-40).join('\n') || '(no logs)';
+      document.getElementById('rebornSrvMeta').textContent = `${rs.state} | ${rs.endpoint} | ${rs.identifier || ''}`;
+      document.getElementById('rebornSrvLogs').textContent = (rs.recentLogs || []).slice(-40).join('\n') || '(no logs)';
+    } else {
+      sp.style.display = 'none';
+    }
 
     const fb = document.getElementById('findingsBody');
     fb.innerHTML = fList.length === 0

@@ -5,6 +5,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using JXReborn.DualParityServer.Diffing;
 using JXReborn.DualParityServer.Session;
+using JXReborn.DualParityServer.Standalone;
 
 namespace JXReborn.DualParityServer.Reporting;
 
@@ -23,6 +24,7 @@ public sealed class ParityReportWriter
     public async Task<ExportedReportPaths> ExportAsync(
         DualSessionManager session,
         string? outputDirectoryOverride = null,
+        StandaloneStackOrchestrator? standalone = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(session);
@@ -42,6 +44,11 @@ public sealed class ParityReportWriter
         await WriteFindingsJsonlAsync(jsonlPath, findings, cancellationToken);
         await File.WriteAllTextAsync(mdPath, BuildMarkdownReport(session, steps, findings, npcScores), Encoding.UTF8, cancellationToken);
         await File.WriteAllTextAsync(htmlPath, BuildHtmlReport(session, steps, findings, npcScores), Encoding.UTF8, cancellationToken);
+
+        if (standalone is not null)
+        {
+            await standalone.WriteServerLogsAsync(outDir, cancellationToken);
+        }
 
         return new ExportedReportPaths(outDir, jsonlPath, mdPath, htmlPath);
     }

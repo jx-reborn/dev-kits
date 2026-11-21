@@ -4,6 +4,7 @@ using JXReborn.DualParityServer.Diffing;
 using JXReborn.DualParityServer.Mirroring;
 using JXReborn.DualParityServer.Reporting;
 using JXReborn.DualParityServer.Session;
+using JXReborn.DualParityServer.Standalone;
 
 namespace JXReborn.DualParityServer.Web;
 
@@ -18,7 +19,8 @@ public static class DashboardEndpoints
         InteractiveMirrorEngine mirror,
         ScenarioRunner scenarioRunner,
         NpcDialogCrawler crawler,
-        ParityReportWriter reportWriter)
+        ParityReportWriter reportWriter,
+        StandaloneStackOrchestrator? standalone = null)
     {
         app.MapGet("/", () => Results.Content(DashboardHtml.Page, "text/html; charset=utf-8"));
 
@@ -26,10 +28,12 @@ public static class DashboardEndpoints
         {
             IReadOnlyList<StepComparisonResult> steps = session.GetSteps();
             IReadOnlyList<ParityFinding> findings = session.GetFindings();
+            (ManagedServerStatus Legacy, ManagedServerStatus Reborn)? managed = standalone?.GetStatuses();
             return Results.Ok(new
             {
                 sessionId = session.SessionId,
                 startedAtUtc = session.StartedAtUtc,
+                standaloneEnabled = standalone is not null,
                 bothConnected = session.BothClientsConnected,
                 mirrorRunning = mirror.IsRunning,
                 mirrorStatus = mirror.StatusMessage,
@@ -40,7 +44,10 @@ public static class DashboardEndpoints
                 legacyProxy = session.GetLegacyProxyStats(),
                 rebornProxy = session.GetRebornProxyStats(),
                 legacy = BuildTargetSummary(session.LegacyClient, session.LastLegacySnapshot),
-                reborn = BuildTargetSummary(session.RebornClient, session.LastRebornSnapshot)
+                reborn = BuildTargetSummary(session.RebornClient, session.LastRebornSnapshot),
+                managedServers = managed is null
+                    ? null
+                    : new { legacy = managed.Value.Legacy, reborn = managed.Value.Reborn }
             });
         });
 
@@ -156,7 +163,7 @@ public static class DashboardEndpoints
 
         app.MapPost("/api/report/export", async (CancellationToken ct) =>
         {
-            ExportedReportPaths paths = await reportWriter.ExportAsync(session, cancellationToken: ct);
+            ExportedReportPaths paths = await reportWriter.ExportAsync(session, standalone: standalone, cancellationToken: ct);
             return Results.Ok(new { message = "Reports exported.", paths });
         });
     }
