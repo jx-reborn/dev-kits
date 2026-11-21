@@ -9,6 +9,8 @@
     <Project Path="qa/JXReborn.ClientDriver.Tests/JXReborn.ClientDriver.Tests.csproj" />
     <Project Path="qa/JXReborn.DualParityServer/JXReborn.DualParityServer.csproj" />
     <Project Path="qa/JXReborn.DualParityServer.Tests/JXReborn.DualParityServer.Tests.csproj" />
+    <Project Path="qa/JXReborn.WireParityProxy/JXReborn.WireParityProxy.csproj" />
+    <Project Path="qa/JXReborn.WireParityProxy.Tests/JXReborn.WireParityProxy.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/JXReborn.Workbench.ParityTests/JXReborn.Workbench.ParityTests.csproj" />
