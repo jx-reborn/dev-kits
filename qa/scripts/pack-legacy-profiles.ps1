@@ -33,9 +33,19 @@ if ([string]::IsNullOrWhiteSpace($SourceDir)) {
     if (-not [string]::IsNullOrWhiteSpace($env:LEGACY_SERVER_DIR) -and (Test-Path -LiteralPath $env:LEGACY_SERVER_DIR)) {
         $SourceDir = $env:LEGACY_SERVER_DIR
     } else {
-        $defaultDir = ($(if (Test-Path (Join-Path (Split-Path -Parent $RepoRoot) "legacy-server")) { Join-Path (Split-Path -Parent $RepoRoot) "legacy-server" } else { Join-Path (Split-Path -Parent (Split-Path -Parent $RepoRoot)) "legacy-server" }))
-        if (Test-Path -LiteralPath $defaultDir) {
-            $SourceDir = $defaultDir
+        $workspaceParent = Split-Path -Parent $RepoRoot
+        $grandParent = Split-Path -Parent $workspaceParent
+        $candidates = @(
+            (Join-Path $workspaceParent "legacy-server\bin"),
+            (Join-Path $workspaceParent "legacy-server"),
+            (Join-Path $grandParent "legacy-server\bin"),
+            (Join-Path $grandParent "legacy-server")
+        )
+        foreach ($cand in $candidates) {
+            if ((Test-Path -LiteralPath (Join-Path $cand "gateway")) -and (Test-Path -LiteralPath (Join-Path $cand "server1"))) {
+                $SourceDir = $cand
+                break
+            }
         }
     }
 }

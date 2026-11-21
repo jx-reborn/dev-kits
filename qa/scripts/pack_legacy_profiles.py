@@ -948,8 +948,11 @@ def recover_ntfs_mojibake_segment(seg: str) -> str:
         try:
             b1 = seg.encode("latin1")
         except UnicodeEncodeError:
-            b1 = seg.encode("gbk")
-            return b1.decode("utf-8", "surrogateescape")
+            try:
+                b1 = seg.encode("gbk")
+                return b1.decode("utf-8", "surrogateescape")
+            except UnicodeEncodeError:
+                return seg
 
     # Attempt UTF-8 decode -> Latin1 raw bytes if it was UTF-8 decoded as CP1252/Latin1
     try:
