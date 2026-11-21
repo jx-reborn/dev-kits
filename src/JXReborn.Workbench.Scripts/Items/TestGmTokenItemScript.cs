@@ -112,6 +112,16 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 OpenVitalsMenu((ZoneScriptDialogContextBase)c);
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Điểm hoạt động (Phúc duyên, Tống Kim, Liên đấu)", static c =>
+            {
+                OpenActivityPointsMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Danh hiệu / Quân hàm (Rank)", static c =>
+            {
+                OpenRankMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenRootMenu((ZoneScriptDialogContextBase)c);
@@ -178,6 +188,17 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 });
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Nhận điểm Kinh nghiệm (nhập số)", static c =>
+            {
+                c.AskClientForNumber("Nhập điểm Kinh nghiệm (1..100000000):", 1, 100_000_000, static (nc, exp) =>
+                {
+                    int clamped = Math.Clamp(exp, 1, 100_000_000);
+                    nc.GrantExperience(clamped);
+                    nc.SendSystemMessage($"Đã nhận {clamped} điểm Kinh nghiệm.");
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenCharacterMenu((ZoneScriptDialogContextBase)c);
@@ -212,6 +233,13 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 });
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Tẩy tủy Tiềm năng (Reset)", static c =>
+            {
+                var bc = (ZoneScriptDialogContextBase)c;
+                var result = bc.TryWashPoints(JXReborn.ZoneEngine.Factions.WashPointsMode.AttributesOnly);
+                bc.SendSystemMessage($"Tẩy tủy Tiềm năng: {result}.");
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenCharacterMenu((ZoneScriptDialogContextBase)c);
@@ -227,6 +255,84 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
             {
                 RestoreVitals(((ZoneScriptDialogContextBase)c).Player);
                 c.SendSystemMessage("Đã hồi đầy Sinh lực, Nội lực và Thể lực.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Đưa Sinh lực về thấp (10% HP)", static c =>
+            {
+                PlayerZoneState p = ((ZoneScriptDialogContextBase)c).Player;
+                p.CurrentLife = Math.Max(1, p.EffectiveMaxLife / 10);
+                p.CombatSink.SendNormalVitalSync(p);
+                c.SendSystemMessage($"Đã đặt Sinh lực về {p.CurrentLife}/{p.EffectiveMaxLife}.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenCharacterMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static void OpenActivityPointsMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            "Điểm hoạt động (Phúc duyên, Tống Kim, Liên đấu):",
+            new DialogOption("Cộng 1,000 Phúc duyên", static c =>
+            {
+                PlayerZoneState p = ((ZoneScriptDialogContextBase)c).Player;
+                p.FuYuan = (int)Math.Clamp((long)p.FuYuan + 1_000, 0, int.MaxValue);
+                c.SendSystemMessage($"Đã cộng 1,000 Phúc duyên (hiện tại: {p.FuYuan}).");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Nhận điểm Tống Kim (nhập số)", static c =>
+            {
+                c.AskClientForNumber("Nhập điểm Tống Kim (1..1000000):", 1, 1_000_000, static (nc, value) =>
+                {
+                    PlayerZoneState p = ((ZoneScriptDialogContextBase)nc).Player;
+                    int delta = Math.Clamp(value, 1, 1_000_000);
+                    p.BattleScore = (int)Math.Clamp((long)p.BattleScore + delta, 0, int.MaxValue);
+                    nc.SendSystemMessage($"Đã cộng {delta} điểm Tống Kim (hiện tại: {p.BattleScore}).");
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Nhận điểm Vinh dự Liên đấu (nhập số)", static c =>
+            {
+                c.AskClientForNumber("Nhập điểm Vinh dự (1..1000000):", 1, 1_000_000, static (nc, value) =>
+                {
+                    PlayerZoneState p = ((ZoneScriptDialogContextBase)nc).Player;
+                    int delta = Math.Clamp(value, 1, 1_000_000);
+                    p.Honor = (int)Math.Clamp((long)p.Honor + delta, 0, int.MaxValue);
+                    nc.SendSystemMessage($"Đã cộng {delta} điểm Vinh dự (hiện tại: {p.Honor}).");
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenCharacterMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static void OpenRankMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            "Danh hiệu / Quân hàm (Rank):",
+            new DialogOption("Nhập Rank ID (0..255)", static c =>
+            {
+                c.AskClientForNumber("Nhập Rank ID (0..255):", 0, 255, static (nc, rankId) =>
+                {
+                    byte clamped = (byte)Math.Clamp(rankId, 0, 255);
+                    nc.SetRank(clamped);
+                    nc.SendSystemMessage($"Đã đặt Rank ID = {clamped}.");
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Xóa Rank (0)", static c =>
+            {
+                c.SetRank(0);
+                c.SendSystemMessage("Đã xóa Rank về 0.");
                 return ValueTask.CompletedTask;
             }),
             new DialogOption("Quay lại", static c =>
@@ -309,6 +415,11 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
             new DialogOption("Trùng sinh", static c =>
             {
                 OpenTransmigrationMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Gia nhập Môn phái & Xuất sư", static c =>
+            {
+                OpenJoinFactionMenu((ZoneScriptDialogContextBase)c);
                 return ValueTask.CompletedTask;
             }),
             new DialogOption("Quay lại", static c =>
@@ -451,6 +562,30 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 });
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Xóa kỹ năng theo ID (Hoàn điểm)", static c =>
+            {
+                c.AskClientForNumber("Nhập ID Kỹ năng cần xóa (1..2000):", 1, 2000, static (nc, skillId) =>
+                {
+                    int clampedId = Math.Clamp(skillId, 1, 2000);
+                    if (nc.TryForgetSkillAndRefundPoints(clampedId, out ushort refunded))
+                    {
+                        nc.SendSystemMessage($"Đã xóa kỹ năng ID {clampedId} (hoàn {refunded} điểm).");
+                    }
+                    else
+                    {
+                        nc.SendSystemMessage($"Không tìm thấy kỹ năng ID {clampedId} để xóa.");
+                    }
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Tẩy tủy Kỹ năng (Reset)", static c =>
+            {
+                var bc = (ZoneScriptDialogContextBase)c;
+                var result = bc.TryWashPoints(JXReborn.ZoneEngine.Factions.WashPointsMode.SkillsOnly);
+                bc.SendSystemMessage($"Tẩy tủy Kỹ năng: {result}.");
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenFactionAndSkillMenu((ZoneScriptDialogContextBase)c);
@@ -526,6 +661,42 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
             }));
     }
 
+    private static void OpenJoinFactionMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            "Gia nhập Môn phái & Xuất sư:",
+            new DialogOption("Thiếu Lâm (0)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 0, "Thiếu Lâm")),
+            new DialogOption("Thiên Vương Bang (1)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 1, "Thiên Vương Bang")),
+            new DialogOption("Đường Môn (2)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 2, "Đường Môn")),
+            new DialogOption("Ngũ Độc Giáo (3)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 3, "Ngũ Độc Giáo")),
+            new DialogOption("Nga My (4)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 4, "Nga My")),
+            new DialogOption("Thúy Yên (5)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 5, "Thúy Yên")),
+            new DialogOption("Cái Bang (6)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 6, "Cái Bang")),
+            new DialogOption("Thiên Nhẫn (7)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 7, "Thiên Nhẫn")),
+            new DialogOption("Võ Đang (8)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 8, "Võ Đang")),
+            new DialogOption("Côn Lôn (9)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 9, "Côn Lôn")),
+            new DialogOption("Hoa Sơn (10)", static c => JoinFaction((ZoneScriptDialogContextBase)c, 10, "Hoa Sơn")),
+            new DialogOption("Xuất sư (Graduate Faction)", static c =>
+            {
+                var bc = (ZoneScriptDialogContextBase)c;
+                var result = bc.TryGraduateFaction();
+                bc.SendSystemMessage($"Xuất sư: {result}.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenFactionAndSkillMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static ValueTask JoinFaction(ZoneScriptDialogContextBase ctx, byte factionId, string name)
+    {
+        var result = ctx.TryJoinFaction(factionId);
+        ctx.SendSystemMessage($"Gia nhập {name} ({factionId}): {result}.");
+        return ValueTask.CompletedTask;
+    }
+
     // ==================== [2] ECONOMY & STORAGE ====================
     private static void OpenEconomyMenu(ZoneScriptDialogContextBase ctx)
     {
@@ -581,9 +752,84 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 c.OpenStoreBox();
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Tiền Đồng (Coin)", static c =>
+            {
+                OpenCoinMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Mở rộng Rương (1 / 2 / 3)", static c =>
+            {
+                OpenExpandableBoxMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenRootMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static void OpenCoinMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            $"Tiền Đồng (hiện tại: {ctx.Player.Coin}):",
+            new DialogOption("Nhận 1,000 Tiền Đồng", static c =>
+            {
+                PlayerZoneState p = ((ZoneScriptDialogContextBase)c).Player;
+                p.Coin = (int)Math.Clamp((long)p.Coin + 1_000, 0, int.MaxValue);
+                c.SendSystemMessage($"Đã nhận 1,000 Tiền Đồng (hiện tại: {p.Coin}).");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Nhập số lượng Tiền Đồng (1..1000000)", static c =>
+            {
+                c.AskClientForNumber("Nhập số lượng Tiền Đồng (1..1000000):", 1, 1_000_000, static (nc, amount) =>
+                {
+                    PlayerZoneState p = ((ZoneScriptDialogContextBase)nc).Player;
+                    int clamped = Math.Clamp(amount, 1, 1_000_000);
+                    p.Coin = (int)Math.Clamp((long)p.Coin + clamped, 0, int.MaxValue);
+                    nc.SendSystemMessage($"Đã nhận {clamped} Tiền Đồng (hiện tại: {p.Coin}).");
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Xóa Tiền Đồng về 0", static c =>
+            {
+                ((ZoneScriptDialogContextBase)c).Player.Coin = 0;
+                c.SendSystemMessage("Đã đưa Tiền Đồng về 0.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenEconomyMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static void OpenExpandableBoxMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            "Mở rộng Rương chứa đồ:",
+            new DialogOption("Mở khóa Rương mở rộng 1", static c =>
+            {
+                c.UnlockExpandableBox(1);
+                c.SendSystemMessage("Đã mở khóa Rương mở rộng 1.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Mở khóa Rương mở rộng 2", static c =>
+            {
+                c.UnlockExpandableBox(2);
+                c.SendSystemMessage("Đã mở khóa Rương mở rộng 2.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Mở khóa Rương mở rộng 3", static c =>
+            {
+                c.UnlockExpandableBox(3);
+                c.SendSystemMessage("Đã mở khóa Rương mở rộng 3.");
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenEconomyMenu((ZoneScriptDialogContextBase)c);
                 return ValueTask.CompletedTask;
             }));
     }
@@ -618,11 +864,90 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 OpenBagBoundaryMenu((ZoneScriptDialogContextBase)c);
                 return ValueTask.CompletedTask;
             }),
+            new DialogOption("Lấy vật phẩm theo ID (G, D, P, L)", static c =>
+            {
+                PromptItemByIds((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Thú cưỡi (Ngựa)", static c =>
+            {
+                OpenMountsMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenRootMenu((ZoneScriptDialogContextBase)c);
                 return ValueTask.CompletedTask;
             }));
+    }
+
+    private static void PromptItemByIds(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.AskClientForNumber("Nhập Genre (0=Trang bị, 1=Thuốc, 4=Khoáng/NV, 6=Script):", 0, 10, static (nc1, genreRaw) =>
+        {
+            var genre = (ItemGenreKind)Math.Clamp(genreRaw, 0, 10);
+            nc1.AskClientForNumber("Nhập DetailType (0..255):", 0, 255, (nc2, detailRaw) =>
+            {
+                short detail = (short)Math.Clamp(detailRaw, 0, 255);
+                nc2.AskClientForNumber("Nhập ParticularType (0..10000):", 0, 10_000, (nc3, particularRaw) =>
+                {
+                    short particular = (short)Math.Clamp(particularRaw, 0, 10_000);
+                    nc3.AskClientForNumber("Nhập Level (1..10):", 1, 10, (nc4, levelRaw) =>
+                    {
+                        byte level = (byte)Math.Clamp(levelRaw, 1, 10);
+                        var bc = (ZoneScriptDialogContextBase)nc4;
+                        ItemTemplate tpl = ResolveOrCreateTemplate(
+                            bc,
+                            $"custom-{genreRaw}-{detail}-{particular}-{level}",
+                            $"Item ({genreRaw},{detail},{particular},{level})",
+                            genre,
+                            ItemQualityKind.Normal,
+                            detail,
+                            particular,
+                            level,
+                            1,
+                            1);
+
+                        if (genre == ItemGenreKind.Equipment)
+                        {
+                            GrantPlainEquipment(bc, tpl.Code, tpl.Name, detail, particular, level, tpl.GridWidthCells, tpl.GridHeightCells, durability: 100);
+                        }
+                        else
+                        {
+                            _ = TryPlaceAndSyncBagSlot(bc.Player, CreateSimpleSlot(bc.Player, tpl, genre, detail, particular, level));
+                            bc.SendSystemMessage($"Đã cấp vật phẩm {tpl.Name} ({(byte)genre},{detail},{particular},{level}).");
+                        }
+                        return ValueTask.CompletedTask;
+                    });
+                    return ValueTask.CompletedTask;
+                });
+                return ValueTask.CompletedTask;
+            });
+            return ValueTask.CompletedTask;
+        });
+    }
+
+    private static void OpenMountsMenu(ZoneScriptDialogContextBase ctx)
+    {
+        ctx.Say(
+            "Thú cưỡi (Ngựa):",
+            new DialogOption("Hoàng Câu (0,10,5,1)", static c => GrantMount((ZoneScriptDialogContextBase)c, 5, 1, "Hoàng Câu")),
+            new DialogOption("Ô Vân Đạp Tuyết (0,10,5,6)", static c => GrantMount((ZoneScriptDialogContextBase)c, 5, 6, "Ô Vân Đạp Tuyết")),
+            new DialogOption("Đích Lô (0,10,5,7)", static c => GrantMount((ZoneScriptDialogContextBase)c, 5, 7, "Đích Lô")),
+            new DialogOption("Tuyệt Ảnh (0,10,5,8)", static c => GrantMount((ZoneScriptDialogContextBase)c, 5, 8, "Tuyệt Ảnh")),
+            new DialogOption("Chiếu Dạ Ngọc Sư Tử (0,10,5,10)", static c => GrantMount((ZoneScriptDialogContextBase)c, 5, 10, "Chiếu Dạ Ngọc Sư Tử")),
+            new DialogOption("Bôn Tiêu (0,10,6,10)", static c => GrantMount((ZoneScriptDialogContextBase)c, 6, 10, "Bôn Tiêu")),
+            new DialogOption("Quay lại", static c =>
+            {
+                OpenItemsMenu((ZoneScriptDialogContextBase)c);
+                return ValueTask.CompletedTask;
+            }));
+    }
+
+    private static ValueTask GrantMount(ZoneScriptDialogContextBase ctx, short particular, byte level, string fallbackName)
+    {
+        GrantPlainEquipment(ctx, $"mount-{particular}-{level}", fallbackName, detailType: 10, particularType: particular, level: level, width: 2, height: 3, durability: 100);
+        return ValueTask.CompletedTask;
     }
 
     private static void OpenMedicineItemsMenu(ZoneScriptDialogContextBase ctx)
@@ -1165,6 +1490,32 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
                 _ = await c.TeleportPlayerAsync(81, 1574 * 32, 3224 * 32, targetFightMode: 0)),
             new DialogOption("Vũ Lăng Động - Cửa động (199)", static async c =>
                 _ = await c.TeleportPlayerAsync(199, 1644 * 32, 2906 * 32, targetFightMode: 1)),
+            new DialogOption("Phượng Tường Phủ (1)", static async c =>
+                _ = await c.TeleportPlayerAsync(1, 1600 * 32, 3200 * 32, targetFightMode: 0)),
+            new DialogOption("Thành Đô Phủ (11)", static async c =>
+                _ = await c.TeleportPlayerAsync(11, 3100 * 32, 5000 * 32, targetFightMode: 0)),
+            new DialogOption("Biện Kinh Phủ (37)", static async c =>
+                _ = await c.TeleportPlayerAsync(37, 1700 * 32, 3100 * 32, targetFightMode: 0)),
+            new DialogOption("Đại Lý Phủ (162)", static async c =>
+                _ = await c.TeleportPlayerAsync(162, 1600 * 32, 3200 * 32, targetFightMode: 0)),
+            new DialogOption("Lâm An Phủ (176)", static async c =>
+                _ = await c.TeleportPlayerAsync(176, 1500 * 32, 3200 * 32, targetFightMode: 0)),
+            new DialogOption("Nhập Map ID để dịch chuyển", static c =>
+            {
+                c.AskClientForNumber("Nhập Map ID (1..1000):", 1, 1000, static async (nc, mapId) =>
+                {
+                    ushort targetMap = (ushort)Math.Clamp(mapId, 1, 1000);
+                    _ = await nc.TeleportPlayerAsync(targetMap, 1600 * 32, 3200 * 32, targetFightMode: 0);
+                });
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Đặt điểm hồi sinh tại bản đồ hiện tại", static c =>
+            {
+                var bc = (ZoneScriptDialogContextBase)c;
+                bc.SetRevivalPoint(bc.Player.MapId, 1);
+                bc.SendSystemMessage($"Đã đặt điểm hồi sinh tại Map {bc.Player.MapId}.");
+                return ValueTask.CompletedTask;
+            }),
             new DialogOption("Quay lại", static c =>
             {
                 OpenRootMenu((ZoneScriptDialogContextBase)c);
@@ -1196,6 +1547,19 @@ public sealed class TestGmTokenItemScript : IItemUsageScript
             new DialogOption("Mở Tiệm Dược Điếm (Shop 39)", static c =>
             {
                 c.OpenShop(39);
+                return ValueTask.CompletedTask;
+            }),
+            new DialogOption("Triệu hồi NPC / Boss theo Template ID", static c =>
+            {
+                c.AskClientForNumber("Nhập NPC Template ID (1..5000):", 1, 5000, static (nc, templateId) =>
+                {
+                    var bc = (ZoneScriptDialogContextBase)nc;
+                    int clampedTpl = Math.Clamp(templateId, 1, 5000);
+                    PlayerZoneState p = bc.Player;
+                    _ = bc.ExecutionContext.SpawnDynamicNpc(templateId: clampedTpl, level: 90, mpsX: p.CurrentMpsX + 64, mpsY: p.CurrentMpsY);
+                    bc.SendSystemMessage($"Đã triệu hồi NPC Template {clampedTpl} (Lv 90).");
+                    return ValueTask.CompletedTask;
+                });
                 return ValueTask.CompletedTask;
             }),
             new DialogOption("Quay lại", static c =>

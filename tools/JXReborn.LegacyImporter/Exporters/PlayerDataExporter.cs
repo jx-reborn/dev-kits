@@ -412,6 +412,51 @@ public sealed class PlayerDataExporter
             }
         }
 
+        if (KTabFileTable.TryLoad(source, @"settings\ranksetting.txt") is { } rankSettingTable)
+        {
+            if (!titlesByFactionId.TryGetValue(10, out List<Dictionary<string, object?>>? huaShanTitles))
+            {
+                huaShanTitles = [];
+                titlesByFactionId[10] = huaShanTitles;
+            }
+
+            var existingHuaShanRankIds = new HashSet<int>();
+            foreach (Dictionary<string, object?> entry in huaShanTitles)
+            {
+                if (entry.TryGetValue("rankId", out object? existingId) && existingId is int idVal)
+                {
+                    existingHuaShanRankIds.Add(idVal);
+                }
+            }
+
+            for (int r = 1; r <= rankSettingTable.DataRowCount; r++)
+            {
+                int rankId = rankSettingTable.GetInt(r, 0, 0);
+                if (rankId < 82 || rankId > 89 || !existingHuaShanRankIds.Add(rankId))
+                {
+                    continue;
+                }
+
+                string titleStr = rankSettingTable.GetString(r, 1, preferVietnamese: true).Trim();
+                if (titleStr.Length == 0)
+                {
+                    continue;
+                }
+
+                legacyTitleCount++;
+                huaShanTitles.Add(new Dictionary<string, object?>
+                {
+                    ["rankId"] = rankId,
+                    ["titleName"] = titleStr,
+                });
+            }
+
+            if (huaShanTitles.Count == 0)
+            {
+                titlesByFactionId.Remove(10);
+            }
+        }
+
         byte[]? factionBytes = null;
         if (!source.TryReadServerFile(@"settings\faction\门派设定.ini", out factionBytes))
         {
