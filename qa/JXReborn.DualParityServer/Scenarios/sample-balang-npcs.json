@@ -1,0 +1,16 @@
+{
+  "name": "BaLangHuyen_NpcSmoke",
+  "description": "Lockstep check of initial state and nearby static NPC dialogs in Ba Lang Huyen (Map 53).",
+  "steps": [
+    {
+      "name": "InitialParityCheck",
+      "type": "assertparity",
+      "waitMs": 100
+    },
+    {
+      "name": "CrawlNearbyDialogNpcs",
+      "type": "crawlnearbynpcs",
+      "maxBranches": 1
+    }
+  ]
+}
