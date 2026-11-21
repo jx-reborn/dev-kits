@@ -1,0 +1,440 @@
+using System.Collections.Concurrent;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using JXReborn.ClientDriver;
+using JXReborn.DualParityServer.Diffing;
+using JXReborn.DualParityServer.Standalone;
+using JXReborn.WireParityProxy.Configuration;
+using JXReborn.WireParityProxy.Driver;
+using JXReborn.WireParityProxy.Proxy;
+using JXReborn.WireParityProxy.Reporting;
+
+namespace JXReborn.WireParityProxy.Mcp;
+
+/// <summary>
+/// Implements Model Context Protocol (MCP) JSON-RPC 2.0 tool discovery and execution
+/// for AI Agents driving <see cref="GameServerShadowProxy"/> and <see cref="PrimaryClientDriverBridge"/>.
+/// </summary>
+public sealed class WireParityMcpToolDispatcher
+{
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
+    };
+
+    private readonly WireParityProxyOptions _options;
+    private readonly BishopShadowProxy _bishopProxy;
+    private readonly GameServerShadowProxy _gameServerProxy;
+    private readonly PrimaryClientDriverBridge _driverBridge;
+    private readonly ConcurrentQueue<ParityFinding> _globalFindings;
+    private readonly StandaloneStackOrchestrator? _standalone;
+
+    public WireParityMcpToolDispatcher(
+        WireParityProxyOptions options,
+        BishopShadowProxy bishopProxy,
+        GameServerShadowProxy gameServerProxy,
+        PrimaryClientDriverBridge driverBridge,
+        ConcurrentQueue<ParityFinding> globalFindings,
+        StandaloneStackOrchestrator? standalone = null)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(bishopProxy);
+        ArgumentNullException.ThrowIfNull(gameServerProxy);
+        ArgumentNullException.ThrowIfNull(driverBridge);
+        ArgumentNullException.ThrowIfNull(globalFindings);
+        _options = options;
+        _bishopProxy = bishopProxy;
+        _gameServerProxy = gameServerProxy;
+        _driverBridge = driverBridge;
+        _globalFindings = globalFindings;
+        _standalone = standalone;
+    }
+
+    public async Task<JsonObject?> HandleRequestAsync(JsonObject request, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        string? method = request["method"]?.GetValue<string>();
+        JsonNode? idNode = request["id"]?.DeepClone();
+
+        if (string.IsNullOrWhiteSpace(method))
+        {
+            return CreateErrorResponse(idNode, -32600, "Invalid Request: missing method.");
+        }
+
+        // Notifications (no id) do not expect a response
+        if (idNode is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return method switch
+            {
+                "initialize" => CreateSuccessResponse(idNode, new JsonObject
+                {
+                    ["protocolVersion"] = "2024-11-05",
+                    ["capabilities"] = new JsonObject
+                    {
+                        ["tools"] = new JsonObject()
+                    },
+                    ["serverInfo"] = new JsonObject
+                    {
+                        ["name"] = "jxreborn-wire-parity-proxy",
+                        ["version"] = "1.0.0"
+                    }
+                }),
+                "ping" => CreateSuccessResponse(idNode, new JsonObject()),
+                "tools/list" => CreateSuccessResponse(idNode, new JsonObject
+                {
+                    ["tools"] = BuildToolsList()
+                }),
+                "tools/call" => await HandleToolCallAsync(idNode, request["params"] as JsonObject, cancellationToken)
+                    .ConfigureAwait(false),
+                _ => CreateErrorResponse(idNode, -32601, $"Method not found: '{method}'.")
+            };
+        }
+        catch (Exception ex)
+        {
+            return CreateErrorResponse(idNode, -32603, ex.Message);
+        }
+    }
+
+    private async Task<JsonObject> HandleToolCallAsync(
+        JsonNode idNode,
+        JsonObject? @params,
+        CancellationToken cancellationToken)
+    {
+        string? toolName = @params?["name"]?.GetValue<string>();
+        JsonObject args = @params?["arguments"] as JsonObject ?? new JsonObject();
+
+        if (string.IsNullOrWhiteSpace(toolName))
+        {
+            return CreateErrorResponse(idNode, -32602, "Missing tool name.");
+        }
+
+        try
+        {
+            object payload = toolName switch
+            {
+                "get_proxy_status" => GetProxyStatus(),
+                "get_world_state" => await GetWorldStateAsync(cancellationToken).ConfigureAwait(false),
+                "perform_action" => await PerformActionAsync(args, cancellationToken).ConfigureAwait(false),
+                "get_proxy_findings" => GetProxyFindings(args),
+                "get_action_steps" => GetActionSteps(),
+                "export_l3a_capture" => ExportL3aCapture(args),
+                "export_report" => await ExportReportAsync(cancellationToken).ConfigureAwait(false),
+                "reset_drift" => ResetDrift(),
+                _ => throw new InvalidOperationException($"Unknown tool '{toolName}'.")
+            };
+
+            string jsonText = JsonSerializer.Serialize(payload, JsonOptions);
+            return CreateSuccessResponse(idNode, new JsonObject
+            {
+                ["content"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["type"] = "text",
+                        ["text"] = jsonText
+                    }
+                },
+                ["isError"] = false
+            });
+        }
+        catch (Exception ex)
+        {
+            return CreateSuccessResponse(idNode, new JsonObject
+            {
+                ["content"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["type"] = "text",
+                        ["text"] = ex.Message
+                    }
+                },
+                ["isError"] = true
+            });
+        }
+    }
+
+    private object GetProxyStatus()
+    {
+        WireParitySession? session = _gameServerProxy.LatestSession;
+        int totalFindings = _globalFindings.Count + (session?.DiffCoordinator.GetFindings().Count ?? 0);
+        return new
+        {
+            standaloneMode = _standalone is not null,
+            standaloneReady = _standalone?.IsReady ?? false,
+            driverConnected = _driverBridge.IsConnected,
+            bishopPort = _bishopProxy.BoundPort,
+            gameServerPort = _gameServerProxy.BoundPort,
+            primaryBackend = _options.PrimaryBackendName,
+            shadowBackend = _options.ShadowBackendName,
+            sessionId = session?.SessionId,
+            roleName = session?.RoleName,
+            c2sFrames = session?.C2sFrames ?? 0,
+            primaryS2cFrames = session?.PrimaryS2cFrames ?? 0,
+            shadowS2cFrames = session?.ShadowS2cFrames ?? 0,
+            findingsCount = totalFindings,
+            protocolViolations = session?.ProtocolGate.ViolationCount ?? 0,
+            isDrifted = session?.DiffCoordinator.LatestDrift.IsDrifted ?? false,
+            driftSummary = session?.DiffCoordinator.LatestDrift.Summary ?? "Idle"
+        };
+    }
+
+    private async Task<object> GetWorldStateAsync(CancellationToken cancellationToken)
+    {
+        WorldDomSnapshot? ramSnapshot = await _driverBridge.GetClientRamSnapshotAsync(cancellationToken).ConfigureAwait(false);
+        if (ramSnapshot is not null)
+        {
+            return new { source = "client_ram", snapshot = ramSnapshot };
+        }
+
+        WireParitySession? session = _gameServerProxy.LatestSession
+            ?? throw new InvalidOperationException("No client driver attached and no active GameServer session yet.");
+
+        return new { source = "proxy_wire_state", snapshot = session.PrimaryState.ToWorldDomSnapshot() };
+    }
+
+    private async Task<object> PerformActionAsync(JsonObject args, CancellationToken cancellationToken)
+    {
+        JxHeadlessClient client = _driverBridge.Client
+            ?? throw new InvalidOperationException("No game.exe driver attached. Run with --standalone or --spawn.");
+
+        string action = args["action"]?.GetValue<string>()
+            ?? throw new ArgumentException("Missing required argument 'action'.");
+
+        switch (action.ToLowerInvariant())
+        {
+            case "move_to":
+                int x = args["mps_x"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'mps_x'.");
+                int y = args["mps_y"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'mps_y'.");
+                bool run = args["run"]?.GetValue<bool>() ?? true;
+                await client.MoveToAsync(x, y, mode: run ? 2 : 1, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, x, y, run };
+
+            case "interact_npc":
+                uint npcDwId = args["npc_dw_id"]?.GetValue<uint>() ?? throw new ArgumentException("Missing 'npc_dw_id'.");
+                await client.InteractNpcByDwIdAsync(npcDwId, cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, npcDwId };
+
+            case "select_dialog":
+                int optionIndex = args["option_index"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'option_index'.");
+                await client.SelectDialogAsync(optionIndex, cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, optionIndex };
+
+            case "confirm_talk":
+                await client.ConfirmTalkAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action };
+
+            case "use_item":
+                int arrayIndex = args["array_index"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'array_index'.");
+                int place = args["place"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'place'.");
+                int gridX = args["grid_x"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'grid_x'.");
+                int gridY = args["grid_y"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'grid_y'.");
+                await client.UseItemAsync(arrayIndex, place, gridX, gridY, cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, arrayIndex, place, gridX, gridY };
+
+            case "switch_pk":
+                int pkMode = args["pk_mode"]?.GetValue<int>() ?? throw new ArgumentException("Missing 'pk_mode'.");
+                await client.SwitchPkAsync(pkMode, cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, pkMode };
+
+            case "send_chat":
+                int channel = args["channel"]?.GetValue<int>() ?? 0;
+                string message = args["message"]?.GetValue<string>() ?? throw new ArgumentException("Missing 'message'.");
+                await client.SendChatAsync(channel, message, cancellationToken: cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, channel, message };
+
+            case "login":
+                string account = args["account"]?.GetValue<string>() ?? "gm001";
+                string password = args["password"]?.GetValue<string>() ?? "123456";
+                string roleName = args["role_name"]?.GetValue<string>() ?? "ParityHero01";
+                int series = args["series"]?.GetValue<int>() ?? 0;
+                int gender = args["gender"]?.GetValue<int>() ?? 0;
+                WorldDomSnapshot entered = await client.LoginAndEnterWorldAsync(
+                    _options.BindHost,
+                    _bishopProxy.BoundPort,
+                    account,
+                    password,
+                    roleName,
+                    series: series,
+                    gender: gender,
+                    cancellationToken: cancellationToken).ConfigureAwait(false);
+                return new { ok = true, action, mapId = entered.Player.MapId, mpsX = entered.Player.MpsX, mpsY = entered.Player.MpsY };
+
+            default:
+                throw new ArgumentException($"Unsupported action '{action}'.");
+        }
+    }
+
+    private object GetProxyFindings(JsonObject args)
+    {
+        string? severityFilter = args["severity"]?.GetValue<string>();
+        int minStep = args["since_step"]?.GetValue<int>() ?? 0;
+
+        var all = new List<ParityFinding>(_globalFindings);
+        WireParitySession? session = _gameServerProxy.LatestSession;
+        if (session is not null)
+        {
+            all.AddRange(session.DiffCoordinator.GetFindings());
+        }
+
+        IEnumerable<ParityFinding> filtered = all.Where(f => f.StepIndex >= minStep);
+        if (!string.IsNullOrWhiteSpace(severityFilter) &&
+            Enum.TryParse<FindingSeverity>(severityFilter, ignoreCase: true, out FindingSeverity sev))
+        {
+            filtered = filtered.Where(f => f.Severity == sev);
+        }
+
+        return filtered.ToArray();
+    }
+
+    private object GetActionSteps() =>
+        _gameServerProxy.LatestSession?.DiffCoordinator.GetSteps() ?? [];
+
+    private object ExportL3aCapture(JsonObject args)
+    {
+        WireParitySession session = _gameServerProxy.LatestSession
+            ?? throw new InvalidOperationException("No active GameServer session yet.");
+
+        int stepIndex = args["step_index"]?.GetValue<int>()
+            ?? throw new ArgumentException("Missing 'step_index'.");
+
+        string defaultId = $"WPP_{session.SessionId.Replace("-", "_", StringComparison.Ordinal)}_S{stepIndex:D3}";
+        if (defaultId.Length > 79)
+        {
+            defaultId = defaultId[..79];
+        }
+
+        string captureId = args["capture_id"]?.GetValue<string>() ?? defaultId;
+        string outDir = Path.Combine(_options.ReportOutputDir, "captures");
+        string path = L3aCaptureExporter.ExportActionWindow(session, stepIndex, captureId, outDir);
+        return new { ok = true, captureId, path };
+    }
+
+    private async Task<object> ExportReportAsync(CancellationToken cancellationToken)
+    {
+        WireParitySession session = _gameServerProxy.LatestSession
+            ?? throw new InvalidOperationException("No active GameServer session yet.");
+
+        string dir = WireParityReportWriter.WriteAll(session, _options.ReportOutputDir, _globalFindings.ToArray());
+        if (_standalone is not null)
+        {
+            await _standalone.WriteServerLogsAsync(dir, cancellationToken).ConfigureAwait(false);
+        }
+
+        return new { ok = true, path = dir };
+    }
+
+    private object ResetDrift()
+    {
+        _gameServerProxy.LatestSession?.DiffCoordinator.ResetDrift();
+        return new { ok = true };
+    }
+
+    private static JsonArray BuildToolsList() =>
+    [
+        CreateToolSchema(
+            "get_proxy_status",
+            "Get live status of Bishop/GameServer shadow proxies, traffic counters, protocol violations, and state drift.",
+            new JsonObject { ["type"] = "object", ["properties"] = new JsonObject() }),
+        CreateToolSchema(
+            "get_world_state",
+            "Get structured WorldDomSnapshot (player, NPCs, dialog, inventory, skills) from client RAM or proxy wire state.",
+            new JsonObject { ["type"] = "object", ["properties"] = new JsonObject() }),
+        CreateToolSchema(
+            "perform_action",
+            "Drive the single game.exe client via driver RPC (login, move_to, interact_npc, select_dialog, confirm_talk, use_item, switch_pk, send_chat).",
+            new JsonObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JsonObject
+                {
+                    ["action"] = new JsonObject { ["type"] = "string", ["description"] = "Action name: login | move_to | interact_npc | select_dialog | confirm_talk | use_item | switch_pk | send_chat" },
+                    ["mps_x"] = new JsonObject { ["type"] = "integer" },
+                    ["mps_y"] = new JsonObject { ["type"] = "integer" },
+                    ["run"] = new JsonObject { ["type"] = "boolean" },
+                    ["npc_dw_id"] = new JsonObject { ["type"] = "integer" },
+                    ["option_index"] = new JsonObject { ["type"] = "integer" },
+                    ["array_index"] = new JsonObject { ["type"] = "integer" },
+                    ["place"] = new JsonObject { ["type"] = "integer" },
+                    ["grid_x"] = new JsonObject { ["type"] = "integer" },
+                    ["grid_y"] = new JsonObject { ["type"] = "integer" },
+                    ["pk_mode"] = new JsonObject { ["type"] = "integer" },
+                    ["channel"] = new JsonObject { ["type"] = "integer" },
+                    ["message"] = new JsonObject { ["type"] = "string" },
+                    ["account"] = new JsonObject { ["type"] = "string" },
+                    ["password"] = new JsonObject { ["type"] = "string" },
+                    ["role_name"] = new JsonObject { ["type"] = "string" }
+                },
+                ["required"] = new JsonArray { "action" }
+            }),
+        CreateToolSchema(
+            "get_proxy_findings",
+            "Get 3-layer parity findings (Protocol Gate, Action-Window Wire Diff, Semantic State Diff).",
+            new JsonObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JsonObject
+                {
+                    ["severity"] = new JsonObject { ["type"] = "string", ["description"] = "Optional: Info | Warning | Critical" },
+                    ["since_step"] = new JsonObject { ["type"] = "integer", ["description"] = "Optional minimum stepIndex" }
+                }
+            }),
+        CreateToolSchema(
+            "get_action_steps",
+            "Get timeline of completed C2S action windows with Primary vs Shadow S2C opcodes and drift status.",
+            new JsonObject { ["type"] = "object", ["properties"] = new JsonObject() }),
+        CreateToolSchema(
+            "export_l3a_capture",
+            "Export a specific action step into a SHA-256 signed *.capture.json file for L3A+ offline CI replay.",
+            new JsonObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JsonObject
+                {
+                    ["step_index"] = new JsonObject { ["type"] = "integer" },
+                    ["capture_id"] = new JsonObject { ["type"] = "string" }
+                },
+                ["required"] = new JsonArray { "step_index" }
+            }),
+        CreateToolSchema(
+            "export_report",
+            "Write findings.jsonl, report.md, report.html (and server logs in standalone mode) to disk.",
+            new JsonObject { ["type"] = "object", ["properties"] = new JsonObject() }),
+        CreateToolSchema(
+            "reset_drift",
+            "Reset the cumulative StateDriftDetector flag after resyncing the character.",
+            new JsonObject { ["type"] = "object", ["properties"] = new JsonObject() })
+    ];
+
+    private static JsonObject CreateToolSchema(string name, string description, JsonObject inputSchema) => new()
+    {
+        ["name"] = name,
+        ["description"] = description,
+        ["inputSchema"] = inputSchema
+    };
+
+    private static JsonObject CreateSuccessResponse(JsonNode? id, JsonObject result) => new()
+    {
+        ["jsonrpc"] = "2.0",
+        ["id"] = id,
+        ["result"] = result
+    };
+
+    private static JsonObject CreateErrorResponse(JsonNode? id, int code, string message) => new()
+    {
+        ["jsonrpc"] = "2.0",
+        ["id"] = id,
+        ["error"] = new JsonObject
+        {
+            ["code"] = code,
+            ["message"] = message
+        }
+    };
+}

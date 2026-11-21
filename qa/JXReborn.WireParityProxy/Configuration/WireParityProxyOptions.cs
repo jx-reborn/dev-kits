@@ -51,6 +51,8 @@ public sealed class WireParityProxyOptions
 
     public bool StandaloneMode { get; set; }
 
+    public bool McpMode { get; set; }
+
     public bool ReuseLegacyContainer { get; set; }
 
     public bool KeepContainers { get; set; }
@@ -213,6 +215,10 @@ public sealed class WireParityProxyOptions
                     options.InteractiveWindow = false;
                     break;
                 case "--no-browser":
+                    options.OpenBrowserOnStandalone = false;
+                    break;
+                case "--mcp":
+                    options.McpMode = true;
                     options.OpenBrowserOnStandalone = false;
                     break;
             }

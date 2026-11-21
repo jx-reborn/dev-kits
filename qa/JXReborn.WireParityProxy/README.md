@@ -32,6 +32,7 @@ Server trung gian kiểm thử đối chiếu ở **tầng giao thức Wire L7**
 - `Translation/` — `EntityIdTranslator` (`SelfNpcId`/`NpcId`/`ItemId` & ô túi đồ), `C2sPacketRewriter` (dịch ID + tính lại `dwCheckValue`).
 - `Diffing/` — `ProtocolSafetyGate`, `ActionWindowWireDiffer`, `StateDriftDetector`, `WireParityDiffCoordinator`.
 - `Driver/` — `PrimaryClientDriverBridge` (kết nối tùy chọn Named Pipe tới 1 `game.exe`).
+- `Mcp/` — `WireParityMcpToolDispatcher`, `WireParityMcpStdioHost` (MCP Server qua stdio JSON-RPC 2.0 cho AI Agent).
 - `Reporting/` — `WireParityReportWriter` (`findings.jsonl`, `report.md`, `report.html`), `L3aCaptureExporter` (`*.capture.json`).
 - `Web/` — Dashboard trực quan tại `http://127.0.0.1:5100`.
 
@@ -83,6 +84,15 @@ Sau đó:
 | `--swap-primary` | `false` | Đảo `reborn-server` làm Primary và `legacy-linux` làm Shadow |
 | `--action-window-ms` | `350` | Cửa sổ thời gian (ms) gom phản hồi S2C cho mỗi action C2S |
 | `--report-dir` | `wire-parity-reports` | Thư mục lưu báo cáo và capture xuất ra |
+| `--mcp` | `false` | Chạy như MCP Server (`stdin`/`stdout` JSON-RPC 2.0) để AI Agent tự điều khiển game & đọc findings |
+
+## Chế độ AI Agent (MCP Server)
+
+Chạy kèm `--mcp` (có thể kết hợp `--standalone --headless`) để expose 8 MCP tools (`get_proxy_status`, `get_world_state`, `perform_action`, `get_proxy_findings`, `get_action_steps`, `export_l3a_capture`, `export_report`, `reset_drift`):
+
+```powershell
+dotnet run --project d:\Projects\jx-reborn\workbench\qa\JXReborn.WireParityProxy -- --standalone --headless --mcp
+```
 
 ## REST API trên Dashboard (`:5100`)
 

@@ -25,6 +25,17 @@ public sealed class PrimaryClientDriverBridge : IAsyncDisposable
         }
     }
 
+    public JxHeadlessClient? Client
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _client;
+            }
+        }
+    }
+
     public async Task ConnectLiveProcessAsync(int pid, CancellationToken cancellationToken = default)
     {
         JxHeadlessClient attached = await JxHeadlessClient.AttachToProcessAsync(pid, cancellationToken: cancellationToken)

@@ -5,6 +5,7 @@ using JXReborn.DualParityServer.Diffing;
 using JXReborn.DualParityServer.Standalone;
 using JXReborn.WireParityProxy.Configuration;
 using JXReborn.WireParityProxy.Driver;
+using JXReborn.WireParityProxy.Mcp;
 using JXReborn.WireParityProxy.Proxy;
 using JXReborn.WireParityProxy.Reporting;
 using JXReborn.WireParityProxy.Web;
@@ -12,6 +13,7 @@ using JXReborn.WireParityProxy.Wire;
 
 WireParityProxyOptions options = WireParityProxyOptions.ParseArgs(args);
 LegacyKeyTable keyTable = WireKeyTableLoader.Load(options);
+TextWriter logOut = options.McpMode ? Console.Error : Console.Out;
 
 string runId = $"wpp-{DateTimeOffset.UtcNow:yyyyMMdd-HHmmss}";
 var globalFindings = new ConcurrentQueue<ParityFinding>();
@@ -32,29 +34,29 @@ await using var bishopProxy = new BishopShadowProxy(
 
 try
 {
-    Console.WriteLine($"[WireParityProxy] Run ID     : {runId}");
-    Console.WriteLine($"[WireParityProxy] Mode       : {(options.StandaloneMode ? "STANDALONE (All-in-One)" : "Attach to running servers")}");
-    Console.WriteLine($"[WireParityProxy] Primary    : {options.PrimaryBackendName}");
-    Console.WriteLine($"[WireParityProxy] Shadow     : {options.ShadowBackendName}");
+    logOut.WriteLine($"[WireParityProxy] Run ID     : {runId}");
+    logOut.WriteLine($"[WireParityProxy] Mode       : {(options.StandaloneMode ? "STANDALONE (All-in-One)" : "Attach to running servers")}{(options.McpMode ? " + MCP" : "")}");
+    logOut.WriteLine($"[WireParityProxy] Primary    : {options.PrimaryBackendName}");
+    logOut.WriteLine($"[WireParityProxy] Shadow     : {options.ShadowBackendName}");
 
     if (standalone is not null)
     {
-        Console.WriteLine("[WireParityProxy] Booting standalone stack (legacy-linux container T=0 + isolated JXReborn.Host T=0)...");
+        logOut.WriteLine("[WireParityProxy] Booting standalone stack (legacy-linux container T=0 + isolated JXReborn.Host T=0)...");
         await standalone.StartAsync();
-        Console.WriteLine("[WireParityProxy] Both backend servers are ready.");
+        logOut.WriteLine("[WireParityProxy] Both backend servers are ready.");
     }
 
     gameServerProxy.Start();
     bishopProxy.Start();
 
-    Console.WriteLine($"[WireParityProxy] Bishop L7  : {options.BindHost}:{bishopProxy.BoundPort}");
-    Console.WriteLine($"[WireParityProxy] GS L7      : {options.BindHost}:{gameServerProxy.BoundPort}");
+    logOut.WriteLine($"[WireParityProxy] Bishop L7  : {options.BindHost}:{bishopProxy.BoundPort}");
+    logOut.WriteLine($"[WireParityProxy] GS L7      : {options.BindHost}:{gameServerProxy.BoundPort}");
 
     if (options.SpawnClient)
     {
-        Console.WriteLine($"[WireParityProxy] Spawning single game.exe pointing to {options.BindHost}:{bishopProxy.BoundPort}...");
+        logOut.WriteLine($"[WireParityProxy] Spawning single game.exe pointing to {options.BindHost}:{bishopProxy.BoundPort}...");
         await driverBridge.SpawnAgainstProxyAsync(options, bishopProxy.BoundPort, options.InteractiveWindow);
-        Console.WriteLine("[WireParityProxy] Single game.exe + driver attached.");
+        logOut.WriteLine("[WireParityProxy] Single game.exe + driver attached.");
     }
 
     string dashboardUrl = $"http://{options.BindHost}:{options.DashboardPort}";
@@ -65,15 +67,33 @@ try
     WebApplication app = builder.Build();
     WireParityDashboardEndpoints.Map(app, options, bishopProxy, gameServerProxy, globalFindings, standalone);
 
-    Console.WriteLine($"[WireParityProxy] Dashboard  : {dashboardUrl}");
-    Console.WriteLine("[WireParityProxy] Press Ctrl+C to stop, export reports, and clean up.");
+    logOut.WriteLine($"[WireParityProxy] Dashboard  : {dashboardUrl}");
 
-    if (options.StandaloneMode && options.OpenBrowserOnStandalone && options.InteractiveWindow)
+    if (options.McpMode)
     {
-        TryOpenBrowser(dashboardUrl);
+        await app.StartAsync();
+        var dispatcher = new WireParityMcpToolDispatcher(
+            options,
+            bishopProxy,
+            gameServerProxy,
+            driverBridge,
+            globalFindings,
+            standalone);
+        var mcpHost = new WireParityMcpStdioHost(dispatcher);
+        logOut.WriteLine("[WireParityProxy] MCP stdio server ready.");
+        await mcpHost.RunAsync(Console.In, Console.Out);
+        await app.StopAsync();
     }
+    else
+    {
+        logOut.WriteLine("[WireParityProxy] Press Ctrl+C to stop, export reports, and clean up.");
+        if (options.StandaloneMode && options.OpenBrowserOnStandalone && options.InteractiveWindow)
+        {
+            TryOpenBrowser(dashboardUrl);
+        }
 
-    await app.RunAsync();
+        await app.RunAsync();
+    }
 }
 finally
 {
@@ -88,7 +108,7 @@ finally
                 await standalone.WriteServerLogsAsync(reportDir);
             }
 
-            Console.WriteLine($"[WireParityProxy] Reports exported to: {reportDir}");
+            logOut.WriteLine($"[WireParityProxy] Reports exported to: {reportDir}");
         }
         catch (Exception ex)
         {
@@ -98,7 +118,7 @@ finally
 
     if (standalone is not null)
     {
-        Console.WriteLine("[WireParityProxy] Shutting down standalone servers...");
+        logOut.WriteLine("[WireParityProxy] Shutting down standalone servers...");
         await standalone.DisposeAsync();
     }
 }
