@@ -53,6 +53,8 @@ public sealed class WireParityProxyOptions
 
     public bool McpMode { get; set; }
 
+    public string? McpProxyUrl { get; set; }
+
     public bool ReuseLegacyContainer { get; set; }
 
     public bool KeepContainers { get; set; }
@@ -220,6 +222,13 @@ public sealed class WireParityProxyOptions
                 case "--mcp":
                     options.McpMode = true;
                     options.OpenBrowserOnStandalone = false;
+                    break;
+                case "--proxy-url":
+                    if (Next() is { } proxyUrl)
+                    {
+                        options.McpProxyUrl = proxyUrl;
+                    }
+
                     break;
             }
         }

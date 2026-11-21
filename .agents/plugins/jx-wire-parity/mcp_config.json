@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "jx-wire-parity": {
+      "command": "dotnet",
+      "args": [
+        "d:\\Projects\\jx-reborn\\workbench\\qa\\JXReborn.WireParityProxy\\bin\\Debug\\net10.0\\JXReborn.WireParityProxy.dll",
+        "--mcp",
+        "--proxy-url",
+        "http://127.0.0.1:5100"
+      ]
+    }
+  }
+}

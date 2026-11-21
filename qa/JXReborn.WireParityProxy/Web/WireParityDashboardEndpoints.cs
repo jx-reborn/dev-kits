@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
+using System.Text.Json.Nodes;
 using JXReborn.DualParityServer.Diffing;
 using JXReborn.DualParityServer.Standalone;
 using JXReborn.WireParityProxy.Configuration;
+using JXReborn.WireParityProxy.Mcp;
 using JXReborn.WireParityProxy.Proxy;
 using JXReborn.WireParityProxy.Reporting;
 
@@ -19,7 +21,8 @@ public static class WireParityDashboardEndpoints
         BishopShadowProxy bishopProxy,
         GameServerShadowProxy gameServerProxy,
         ConcurrentQueue<ParityFinding> globalFindings,
-        StandaloneStackOrchestrator? standalone = null)
+        StandaloneStackOrchestrator? standalone = null,
+        WireParityMcpToolDispatcher? mcpDispatcher = null)
     {
         app.MapGet("/", () => Results.Content(WireParityDashboardHtml.Page, "text/html; charset=utf-8"));
 
@@ -112,5 +115,57 @@ public static class WireParityDashboardEndpoints
             string filePath = L3aCaptureExporter.ExportActionWindow(session, stepIndex, captureId, outDir);
             return Results.Json(new { path = filePath, captureId });
         });
+
+        if (mcpDispatcher is not null)
+        {
+            app.MapGet("/api/world-state", async (CancellationToken ct) =>
+            {
+                var req = new JsonObject
+                {
+                    ["jsonrpc"] = "2.0",
+                    ["id"] = 1,
+                    ["method"] = "tools/call",
+                    ["params"] = new JsonObject
+                    {
+                        ["name"] = "get_world_state",
+                        ["arguments"] = new JsonObject()
+                    }
+                };
+                JsonObject? resp = await mcpDispatcher.HandleRequestAsync(req, ct).ConfigureAwait(false);
+                return Results.Content(resp?.ToJsonString() ?? "{}", "application/json; charset=utf-8");
+            });
+
+            app.MapPost("/api/action", async (HttpRequest httpRequest, CancellationToken ct) =>
+            {
+                JsonObject? args = await JsonNode.ParseAsync(httpRequest.Body, cancellationToken: ct) as JsonObject ?? new JsonObject();
+                var req = new JsonObject
+                {
+                    ["jsonrpc"] = "2.0",
+                    ["id"] = 1,
+                    ["method"] = "tools/call",
+                    ["params"] = new JsonObject
+                    {
+                        ["name"] = "perform_action",
+                        ["arguments"] = args
+                    }
+                };
+                JsonObject? resp = await mcpDispatcher.HandleRequestAsync(req, ct).ConfigureAwait(false);
+                return Results.Content(resp?.ToJsonString() ?? "{}", "application/json; charset=utf-8");
+            });
+
+            app.MapPost("/api/mcp", async (HttpRequest httpRequest, CancellationToken ct) =>
+            {
+                JsonObject? req = await JsonNode.ParseAsync(httpRequest.Body, cancellationToken: ct) as JsonObject;
+                if (req is null)
+                {
+                    return Results.BadRequest(new { error = "Invalid JSON-RPC request body." });
+                }
+
+                JsonObject? resp = await mcpDispatcher.HandleRequestAsync(req, ct).ConfigureAwait(false);
+                return resp is null
+                    ? Results.NoContent()
+                    : Results.Content(resp.ToJsonString(), "application/json; charset=utf-8");
+            });
+        }
     }
 }

@@ -12,6 +12,13 @@ using JXReborn.WireParityProxy.Web;
 using JXReborn.WireParityProxy.Wire;
 
 WireParityProxyOptions options = WireParityProxyOptions.ParseArgs(args);
+if (options.McpMode && !string.IsNullOrWhiteSpace(options.McpProxyUrl))
+{
+    var bridge = new WireParityHttpMcpBridge(options.McpProxyUrl);
+    await bridge.RunAsync(Console.In, Console.Out);
+    return;
+}
+
 LegacyKeyTable keyTable = WireKeyTableLoader.Load(options);
 TextWriter logOut = options.McpMode ? Console.Error : Console.Out;
 
@@ -64,22 +71,23 @@ try
     builder.WebHost.UseUrls(dashboardUrl);
     builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
+    var mcpDispatcher = new WireParityMcpToolDispatcher(
+        options,
+        bishopProxy,
+        gameServerProxy,
+        driverBridge,
+        globalFindings,
+        standalone);
+
     WebApplication app = builder.Build();
-    WireParityDashboardEndpoints.Map(app, options, bishopProxy, gameServerProxy, globalFindings, standalone);
+    WireParityDashboardEndpoints.Map(app, options, bishopProxy, gameServerProxy, globalFindings, standalone, mcpDispatcher);
 
     logOut.WriteLine($"[WireParityProxy] Dashboard  : {dashboardUrl}");
 
     if (options.McpMode)
     {
         await app.StartAsync();
-        var dispatcher = new WireParityMcpToolDispatcher(
-            options,
-            bishopProxy,
-            gameServerProxy,
-            driverBridge,
-            globalFindings,
-            standalone);
-        var mcpHost = new WireParityMcpStdioHost(dispatcher);
+        var mcpHost = new WireParityMcpStdioHost(mcpDispatcher);
         logOut.WriteLine("[WireParityProxy] MCP stdio server ready.");
         await mcpHost.RunAsync(Console.In, Console.Out);
         await app.StopAsync();
